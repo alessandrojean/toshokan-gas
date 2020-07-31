@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurações</title>
+    <!-- Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
+    <link rel="dns-prefetch" href="//rsms.me/">
+    <link rel="dns-prefetch" href="//use.fontawesome.com/">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <style>
+      html {
+        overflow-y: auto;
+      }
+      
+      body,
+      button,
+      input,
+      select,
+      textarea {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+          'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+        font-feature-settings: 'calt' on;
+        -webkit-font-feature-settings: 'calt' on;
+      }
+      
+      code,
+      pre {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      }
+      
+      .is-tabular {
+        font-feature-settings: 'tnum' on, 'calt' on;
+        -webkit-font-feature-settings: 'tnum' on, 'calt' on;
+      }
+      
+      .select,
+      .select select {
+        width: 100%;
+      }
+      
+      #form-content {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      
+      .loader-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        opacity: 0;
+        z-index: -1;
+        transition: opacity .3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .loader-wrapper .loader {
+        height: 80px;
+        width: 80px;
+      }
+      
+      .loader-wrapper.is-active {
+        opacity: 1;
+        z-index: 10;
+      }
+      
+      section[data-settings-group] {
+        padding-top: 0;
+        padding-bottom: 1.5rem;
+        height: calc(100vh - 40px - 2em);
+      }
+      
+      #control-buttons {
+        margin-bottom: 0;
+      }
+      
+      @keyframes up {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        
+        to {
+          opacity: 1;
+        }
+      }
+      
+      .tab-content-wrapper > *[data-settings-group] {
+        animation: up 500ms;
+      }
+    </style>
+  </head>
+  <body>
+    <form>     
+      <div id="form-content">
+        <div class="columns">
+          <!-- Menu lateral -->
+          <div class="column is-one-quarter">
+            <aside class="menu">
+              <p class="menu-label">Geral</p>
+              <ul class="menu-list">
+                <li>
+                  <a data-target="behavior" class="is-active">Comportamento</a>
+                </li>
+              </ul>
+              <p class="menu-label">Serviços</p>
+              <ul class="menu-list">
+                <li>
+                  <a data-target="cbl-service">CBL</a>
+                </li>
+                <!--<li>
+                  <a>Capas</a>
+                </li>-->
+              </ul>
+              <!--<? if (properties.user.SHOW_DEBUG_TOOLS === 'true') { ?>
+              <p class="menu-label">Desenvolvimento</p>
+              <ul class="menu-list">
+                <li>
+                  <a>Flags</a>
+                </li>
+              </ul>
+              <? } ?>-->
+            </aside>
+          </div>
+        
+          <div class="column tab-content-wrapper">
+            <!-- Behavior -->
+            <section id="behavior" class="section" data-settings-group>
+              <h2 class="label">Opções de desenvolvedor</h2>
+              <label class="checkbox">
+                <input type="checkbox" name="USER_SHOW_DEBUG_TOOLS" value="true">
+                Mostrar as ferramentas de <em>debug</em>.
+              </label>
+            </section>
+            
+            <!-- CBL Service -->
+            <section id="cbl-service" class="section is-hidden" data-settings-group>
+              <!-- Access key -->
+              <div class="field">
+                <label class="label">Chave de consulta</label>
+                <div class="control">
+                  <input class="input" type="text" name="USER_CBL_QUERY_KEY">
+                </div>
+                <p class="help">
+                  Você pode obter uma chave de consulta seguindo
+                  <a href="#">estes passos</a>.
+                </p>
+              </div>
+            </section>
+          </div>
+        </div>
+      
+        <!-- Botões de controle -->
+        <div class="level" id="control-buttons">
+          <div class="level-left"></div>
+          <div class="level-right">
+            <div class="level-item">
+              <button type="button" class="button is-light" onclick="google.script.host.close()">Cancelar</button>
+            </div>
+            <div class="level-item">
+              <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+              <button type="submit" class="button is-info" id="submit-button">
+                <span class="icon">
+                  <i class="fas fa-save"></i>
+                </span>
+                <span>Salvar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mensagem de erro -->
+      <article class="message is-danger is-hidden" id="message-danger">
+        <div class="message-header">
+          <p>Ops! Um erro aconteceu</p>
+        </div>
+        <div class="message-body"></div>
+      </article>
+      
+      <!-- Controles invisíveis -->
+      <input type="hidden" name="properties-json" value="<?= JSON.stringify(properties) ?>">
+    </form>
+    
+    <div class="loader-wrapper" id="loader-general">
+      <div class="loader is-loading"></div>
+    </div>
+    
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script>    
+      const $ = document.querySelector.bind(document)
+      const $$ = document.querySelectorAll.bind(document)
+      NodeList.prototype.forEach = Array.prototype.forEach
+      NodeList.prototype.map = Array.prototype.map
+      
+      $('form').addEventListener('submit', handleFormSubmit)
+      $('form').addEventListener('keypress', event => event.keyCode != 13)
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        showProperties()
+        setupMenu()
+      })
+      
+      function showProperties() {
+        const properties = JSON.parse($('input[name=properties-json]').value)
+        
+        for (const [key, value] of Object.entries(properties)) {
+          const currentScope = key.toUpperCase() + '_'
+          for (const [scopeKey, scopeValue] of Object.entries(value)) {
+            const propertyInput = $('[name=' + currentScope + scopeKey + ']')
+            
+            if (propertyInput) {
+              if (propertyInput.type === 'checkbox') {
+                propertyInput.checked = (scopeValue === 'true')
+              } else {
+                propertyInput.value = scopeValue
+              }
+            }
+          }
+        }
+      }
+      
+      function setupMenu() {
+        $$('aside.menu li a[data-target]').forEach(m => m.addEventListener('click', handleMenuChange))
+      }
+      
+      function handleMenuChange(event) {      
+        const currentActive = $('aside.menu li a.is-active')
+        currentActive.classList.remove('is-active')
+        $('#' + currentActive.dataset.target).classList.add('is-hidden')
+        
+        event.target.classList.add('is-active')
+        $('#' + event.target.dataset.target).classList.remove('is-hidden')
+      }
+      
+      function startLoading() {
+        $('#loader-general').classList.add('is-active')
+      }
+      
+      function finishLoading() {
+        $('#loader-general').classList.remove('is-active')
+      }
+      
+      function showError(error) {
+        finishLoading()
+        $('#form-content').classList.add('is-hidden')
+        $('#message-danger').classList.remove('is-hidden')
+        $('#message-danger .message-body').innerHTML = error
+      }
+      
+      function handleFormSubmit(event) {
+        event.preventDefault()
+        const formData = new FormData(event.target)
+        
+        startLoading()
+        
+        const properties = {}
+        
+        const checkboxes = $$('input[type=checkbox]').map(c => [c.name, c.checked])
+        const entries = Array.from(formData.entries()).concat(checkboxes)
+        
+        for (const [key, value] of entries) {
+          if (!key.match(/[A-Z0-9_]+/g)) {
+            continue
+          }
+          
+          const paths = key.split('_')
+          const scope = paths[0].toLowerCase()
+          const scopeKey = paths.slice(1).join('_')
+          
+          if (!properties[scope]) {
+            properties[scope] = {}
+          }
+          
+          properties[scope][scopeKey] = value
+        }        
+        
+        google.script.run
+          .withSuccessHandler(onUpdateSettingsSuccess)
+          .withFailureHandler(onUpdateSettingsFailure)
+          .updateSettings(properties)
+      }
+      
+      function onUpdateSettingsFailure(error) {
+        showError(error.message)
+      }
+      
+      function onUpdateSettingsSuccess() {
+        google.script.host.close()
+      }
+    </script>
+  </body>
+</html>

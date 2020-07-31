@@ -1,0 +1,14 @@
+{
+  "name": "toshokan",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Alessandro Jean",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "push": "clasp push"
+  },
+  "dependencies": {
+    "@types/google-apps-script": "^1.0.14"
+  }
+}
