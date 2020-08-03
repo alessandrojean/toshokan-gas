@@ -61,43 +61,14 @@ function findRowBefore(data: string[]) {
 
   const allEntries = SpreadsheetApp.getActiveSpreadsheet()
     .getActiveSheet()
-    .getRange('C5:J')
+    .getRange('B5:J')
 
   const allBooks = allEntries.getDisplayValues()
     .map(BookModel.Book.createFromRow)
     .map((b, index) => ({ book: b, index }))
 
-  const booksInCommon = allBooks.filter(({ book: b }) => book.checkParity(b))
-
-  if (booksInCommon.length) {
-    // Try to find books with same imprint.
-    const sameImprint = booksInCommon.filter(({ book: b }) => {
-      return book.imprint.toLowerCase() === b.imprint.toLowerCase()
-    })
-
-    let propertyToCompare = 'imprint'
-    
-    // If books from the same imprint and sizes exist,
-    // find the position based on the title.
-    if (sameImprint.length) {
-      propertyToCompare = 'title'
-    }
-
-    // There are books only with the size equals.
-    // In this case we find the position based on the imprint.
-  
-    const rowBefore = booksInCommon.find(({ book: b }) => {
-      return book[propertyToCompare].localeCompare(b[propertyToCompare], 'pt-BR') >= 0
-    })
-
-    return allEntries.getRow() + (rowBefore ? rowBefore.index - 1 : booksInCommon.pop().index)
-  }
-
-  // There aren't books with same size and same imprint,
-  // we need to find the position based only on the size.
-  
   const rowBefore = allBooks.find(({ book: b }) => {
-    return book.size.compare(b.size) <= 0
+    return book.title.localeCompare(b.title) <= 0
   })
     
   return allEntries.getRow() + (rowBefore ? rowBefore.index : 0) - 1

@@ -9,6 +9,7 @@ namespace CblService {
     'NewPOP Editora': 'NewPOP',
     'Panini Brasil': 'Panini',
     'Panini Comics': 'Panini',
+    'Bernardo Ferreira de Santana Carvalho': 'Panini',
     'CONRAD': 'Conrad',
     'Editora Alto Astral': 'Alto Astral',
     'Editora Draco': 'Draco',

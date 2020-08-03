@@ -49,7 +49,7 @@ namespace BookModel {
         },
         store: bookRow[7],
         date: bookRow[8],
-        date8601: bookRow[8].length 
+        date8601: bookRow[8] 
           ? bookRow[8].split('/').reverse().join('-') 
           : bookRow[8]
       }
@@ -150,7 +150,7 @@ namespace BookModel {
     }
 
     equals(other: BookSize): boolean {
-      return this.width === other.width && this.height === other.height 
+      return (this.width === other.width) && (this.height === other.height)
     }
 
     compare(other: BookSize): number {
