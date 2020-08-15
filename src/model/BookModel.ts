@@ -74,12 +74,12 @@ namespace BookModel {
     getIsbnType(): IsbnTypes {
       const identification = this.isbn.replace(/-/g, '')
     
-      if (identification.match(/^789/) && ValidationService.validateEan(identification)) {
+      if (identification.match(/^789/) /* && ValidationService.validateEan(identification) */) {
         return 'EAN-13'  
       }
       
       if (ValidationService.validateIsbn(identification)) {
-        return this.isbn.replace(/-/g, '').length === 13 ? 'ISBN-13' : 'ISBN-10' 
+        return identification.length === 13 ? 'ISBN-13' : 'ISBN-10' 
       }
       
       if (ValidationService.validateIssn(identification)) {

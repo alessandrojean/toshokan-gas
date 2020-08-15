@@ -3,10 +3,16 @@
  */
 
 function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('Toshokan')
+  const ui = SpreadsheetApp.getUi()
+
+  ui.createMenu('Toshokan')
     .addItem('Adicionar…', 'displayCreationModal')
     .addItem('Editar…', 'displayEditionModal')
+    .addSeparator()
+    .addSubMenu(
+      ui.createMenu('Exportar')
+        .addItem('Libib', 'exportToLibib')
+    )
     .addSeparator()
     .addItem('Configurações', 'displaySettingsModal')
     .addToUi();

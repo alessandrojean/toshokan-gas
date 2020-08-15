@@ -90,6 +90,48 @@ namespace CoverService {
     queryTransformer?: (value: any) => any
   }
 
+  class OEmbedHandler implements ICoverHandler {
+    baseUrl: string = ''
+    createPath: (book: BookModel.Book) => string
+
+    constructor (properties: IOEmbedHandlerProperties) {
+      Object.assign(this, properties)
+    }
+
+    run(book: BookModel.Book): string {
+      const urlPath = this.createPath(book)
+
+      const wpJsonUrl = this.baseUrl + '/wp-json/oembed/1.0/embed'
+        + '?url=' + encodeURIComponent(this.baseUrl + urlPath)
+
+      const apiResponse = UrlFetchApp.fetch(wpJsonUrl, {
+        method: 'get',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'User-Agent': USER_AGENT
+        }
+      })
+
+      if (apiResponse.getResponseCode() !== 200) {
+        throw NO_RESULTS_FOUND
+      }
+
+      const jsonResponse: Object = JSON.parse(apiResponse.getContentText())
+
+      if (!jsonResponse['thumbnail_url']) {
+        throw COVER_NOT_FOUND
+      }
+
+      return jsonResponse['thumbnail_url'] 
+    }
+  }
+
+  interface IOEmbedHandlerProperties {
+    baseUrl: string,
+    createPath: (book: BookModel.Book) => string
+  }
+
   interface SiteMap {
     [imprint: string]: ICoverHandler
   }
@@ -109,11 +151,20 @@ namespace CoverService {
       searchWith: BookModel.PROPERTIES.TITLE,
       collection: 'product'
     }),
-    'JBC': new WordpressHandler({
-      url: 'https://mangasjbc.com.br',
-      searchWith: BookModel.PROPERTIES.TITLE,
-      queryParameter: 'slug',
-      queryTransformer: title => Utils.slugify(title).replace('especial', 'esp')
+    // 'JBC': new WordpressHandler({
+    //   url: 'https://mangasjbc.com.br',
+    //   searchWith: BookModel.PROPERTIES.TITLE,
+    //   queryParameter: 'slug',
+    //   queryTransformer: title => Utils.slugify(title).replace('especial', 'esp')
+    // }),
+    'JBC': new OEmbedHandler({
+      baseUrl: 'https://editorajbc.com.br',
+      createPath: book => {
+        const series = Utils.slugify(book.titleParts[0]).replace('especial', 'esp')
+        const title = Utils.slugify(book.title).replace('especial', 'esp')
+
+        return `/mangas/colecao/${series}/vol/${title}/`
+      }
     }),
     'Vertical': new WordpressHandler({
       url: 'https://readvertical.com',
