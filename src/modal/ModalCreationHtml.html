@@ -10,7 +10,7 @@
     <link rel="dns-prefetch" href="//use.fontawesome.com/">
     <link rel="dns-prefetch" href="//servicos.cbl.org.br/">
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
     <style>
       html {
@@ -456,7 +456,7 @@
         <div class="level is-bottom-level" id="control-buttons">
           <div class="level-left">
             <div class="level-item">
-              <button type="button" class="button is-light" id="fill-info">
+              <button type="button" class="button is-link is-light" id="fill-info">
                 <span class="icon">
                   <i class="fas fa-binoculars"></i>
                 </span>
@@ -466,11 +466,11 @@
           </div>
           <div class="level-right">
             <div class="level-item">
-              <button type="button" class="button is-light" onclick="google.script.host.close()">Cancelar</button>
+              <button type="button" class="button is-link is-light" onclick="google.script.host.close()">Cancelar</button>
             </div>
             <div class="level-item">
-              <button type="submit" disabled style="display: none" aria-hidden="true"></button>
-              <button type="submit" class="button is-info" id="submit-button">
+              <button type="submit" class="is-hidden" disabled  aria-hidden="true"></button>
+              <button type="submit" class="button is-link" id="submit-button">
                 <span class="icon is-small">
                   <i class="fas fa-plus"></i>
                 </span>

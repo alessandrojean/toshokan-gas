@@ -10,7 +10,7 @@
     <link rel="dns-prefetch" href="//rsms.me/">
     <link rel="dns-prefetch" href="//use.fontawesome.com/">
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital@0;1&display=swap" rel="stylesheet">
     <style>
@@ -556,11 +556,11 @@
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button type="button" class="button is-light" onclick="google.script.host.close()">Cancelar</button>
+            <button type="button" class="button is-link is-light" onclick="google.script.host.close()">Cancelar</button>
           </div>
           <div class="level-item">
-            <button type="submit" disabled style="display: none" aria-hidden="true"></button>
-            <button type="submit" class="button is-info" id="submit-button">
+            <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
+            <button type="submit" class="button is-link" id="submit-button">
               <span class="icon">
                 <i class="fas fa-save"></i>
               </span>
