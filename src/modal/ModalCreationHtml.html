@@ -278,7 +278,7 @@
               <input
                 class="input"
                 type="text"
-                placeholder="Identificação"
+                placeholder="ex. 978-85-8362-150-8"
                 name="isbn"
                 required
               >
@@ -294,7 +294,7 @@
               <input
                 class="input"
                 type="text"
-                placeholder="Título do volume"
+                placeholder="ex. A Nova Ilha do Tesouro"
                 name="title"
                 required
               >
@@ -311,7 +311,7 @@
                   <input
                     class="input"
                     type="text"
-                    placeholder="Autores"
+                    placeholder="ex. Osamu Tezuka"
                     name="authors"
                     required
                   >
@@ -327,7 +327,7 @@
                   <input
                     class="input"
                     type="text"
-                    placeholder="Editora"
+                    placeholder="ex. NewPOP"
                     name="imprint"
                     list="imprint-list"
                     required
@@ -353,7 +353,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Largura"
+                      placeholder="ex. 15,0"
                       name="size-width"
                       required
                       pattern="\d{1,2},\d{1}"
@@ -367,7 +367,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Altura"
+                      placeholder="ex. 21,0"
                       name="size-height"
                       required
                       pattern="\d{1,2},\d{1}"
@@ -399,7 +399,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Preço"
+                      placeholder="ex. 26,90"
                       name="price-value"
                       required
                       pattern="\d{1,3}(,\d{2})?"
@@ -421,7 +421,7 @@
                   <input
                     class="input"
                     type="text"
-                    placeholder="Loja"
+                    placeholder="ex. Presente"
                     name="store"
                     list="store-list"
                   >
@@ -436,17 +436,13 @@
             <div class="column">
               <div class="field">
                 <label class="label">Data</label>
-                <div class="field has-addons">
-                  <div class="control is-expanded">
-                    <input class="input" type="date" placeholder="Data" name="date">
-                  </div>
-                  <div class="control">
-                    <button class="button" type="button" id="today-button" title="Usar a data de hoje">
-                      <span class="icon">
-                        <i class="fas fa-calendar-check"></i>
-                      </span>
-                    </button>
-                  </div>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="date"
+                    placeholder="ex. 04/03/2020"
+                    name="date"
+                  >
                 </div>
               </div>
             </div>
@@ -515,7 +511,6 @@
       
       $('#fill-info').addEventListener('click', handleFillInfoClick)
       $('#manual-add-button').addEventListener('click', handleManualAddClick)
-      $('#today-button').addEventListener('click', handleTodayClick)
       
       $('form').addEventListener('submit', handleFormSubmit)
       $('form').addEventListener('keypress', event => event.keyCode != 13)
@@ -636,12 +631,6 @@
         $('#form-content').classList.remove('is-hidden')
         
         $('input[name=isbn]').focus()
-      }
-      
-      /** Today **/
-      
-      function handleTodayClick() {
-        $('input[name=date]').value = new Date().toISOString().split('T')[0]
       }
       
       /** Fill info **/

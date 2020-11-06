@@ -328,8 +328,15 @@
             <span class="panel-icon">
               <i class="fas fa-book" aria-hidden="true"></i>
             </span>
-            <span id="panel-title"><?= book.getTitleParts()[0] ?></span>
-            <span id="panel-title-number" class="tag <?= book.getTitleParts()[1] ? '' : 'is-hidden' ?>">#<?= book.getTitleParts()[1] ?></span>
+            <span id="panel-title">
+              <?= book.getTitleParts()[0] ?>
+            </span>
+            <span
+              id="panel-title-number"
+              class="tag <?= book.getTitleParts()[1] ? '' : 'is-hidden' ?>"
+            >
+              #<?= book.getTitleParts()[1] ?>
+            </span>
           </p>
         </div>
       </aside>
@@ -341,7 +348,13 @@
           <div class="field">
             <label class="label">Identificação</label>
             <div class="control">
-              <input class="input is-tabular" type="text" name="isbn" value="<?= book.isbn ?>" readonly>
+              <input
+                class="input is-tabular"
+                type="text"
+                name="isbn"
+                value="<?= book.isbn ?>"
+                readonly
+              >
             </div>
           </div>
     
@@ -352,7 +365,7 @@
               <input
                 class="input"
                 type="text"
-                placeholder="Título do volume"
+                placeholder="ex. A Nova Ilha do Tesouro"
                 name="title"
                 value="<?= book.title ?>"
                 required
@@ -370,13 +383,15 @@
                   <input
                     class="input"
                     type="text"
-                    placeholder="Autores"
+                    placeholder="ex. Osamu Tezuka"
                     name="authors"
                     value="<?= book.authors ?>"
                     required
                   >
                 </div>
-                <p class="help" id="help-authors">Separe os autores utilizando um ponto e vírgula.</p>
+                <p class="help" id="help-authors">
+                  Separe os autores utilizando um ponto e vírgula.
+                </p>
                 <p class="help is-danger is-hidden" id="help-danger-authors"></p>
               </div>
             </div>
@@ -387,7 +402,7 @@
                   <input
                     class="input"
                     type="text"
-                    placeholder="Editora"
+                    placeholder="ex. NewPOP"
                     name="imprint"
                     value="<?= book.imprint ?>"
                     list="imprint-list"
@@ -414,7 +429,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Largura"
+                      placeholder="ex. 15,0"
                       name="size-width"
                       value="<?= book.size.width ?>"
                       required
@@ -429,7 +444,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Altura"
+                      placeholder="ex. 21,0"
                       name="size-height"
                       value="<?= book.size.height ?>"
                       required
@@ -450,7 +465,10 @@
                 <div class="field has-addons">
                   <div class="control">
                     <span class="select">
-                      <select name="price-currency" data-selected="<?= book.price.currency ?>">
+                      <select
+                        name="price-currency"
+                        data-selected="<?= book.price.currency ?>"
+                      >
                         <option value="R$">R$</option>
                         <option value="US$">US$</option>
                         <option value="€">€</option>
@@ -462,7 +480,7 @@
                     <input
                       class="input is-tabular"
                       type="text"
-                      placeholder="Preço"
+                      placeholder="ex. 26,90"
                       name="price-value"
                       value="<?= book.price.value ?>"
                       required
@@ -480,29 +498,12 @@
           <div class="columns is-variable is-2">
             <div class="column is-one-third">
               <div class="field">
-                <label class="label">Data</label>
-                <div class="field has-addons">
-                  <div class="control is-expanded">
-                    <input class="input" type="date" placeholder="Data" name="date" value="<?= book.date8601 ?>">
-                  </div>
-                  <div class="control">
-                    <button class="button" type="button" id="today-button" title="Usar a data de hoje">
-                      <span class="icon">
-                        <i class="fas fa-calendar-check"></i>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column is-one-third">
-              <div class="field">
                 <label class="label">Loja</label>
                 <div class="control is-expanded">
                   <input
                     class="input"
                     type="text"
-                    placeholder="Loja"
+                    placeholder="ex. Presente"
                     name="store"
                     value="<?= book.store ?>"
                     list="store-list"
@@ -512,6 +513,20 @@
                       <option><?= store ?></option>
                     <? } ?>
                   </datalist>
+                </div>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="field">
+                <label class="label">Data</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="date"
+                    placeholder="ex. 04/03/2020"
+                    name="date"
+                    value="<?= book.date8601 ?>"
+                  >
                 </div>
               </div>
             </div>
@@ -602,7 +617,6 @@
       $('#delete-button').addEventListener('click', handleDeleteClick)
       $('#previous-button').addEventListener('click', handlePreviousClick)
       $('#next-button').addEventListener('click', handleNextClick)
-      $('#today-button').addEventListener('click', handleTodayClick)
       
       $('form').addEventListener('submit', handleFormSubmit)
       $('form').addEventListener('keypress', event => event.keyCode != 13)
@@ -722,12 +736,6 @@
         
         event.target.parentNode.classList.add('is-active')
         $('#' + event.target.dataset.target).classList.remove('is-hidden')
-      }
-      
-      /** Today **/
-      
-      function handleTodayClick() {
-        $('input[name=date]').value = new Date().toISOString().split('T')[0]
       }
       
       /** Cover **/
