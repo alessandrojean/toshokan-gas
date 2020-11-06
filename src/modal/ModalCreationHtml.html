@@ -329,8 +329,14 @@
                     type="text"
                     placeholder="Editora"
                     name="imprint"
+                    list="imprint-list"
                     required
                   >
+                  <datalist id="imprint-list">
+                    <? for (let imprint of entityUniqueProperties.imprints) { ?>
+                      <option><?= imprint ?></option>
+                    <? } ?>
+                  </datalist>
                 </div>
                 <p class="help is-danger is-hidden" id="help-danger-imprint"></p>
               </div>
@@ -412,7 +418,18 @@
               <div class="field">
                 <label class="label">Loja</label>
                 <div class="control is-expanded">
-                  <input class="input" type="text" placeholder="Loja" name="store">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="Loja"
+                    name="store"
+                    list="store-list"
+                  >
+                  <datalist id="store-list">
+                    <? for (let store of entityUniqueProperties.stores) { ?>
+                      <option><?= store ?></option>
+                    <? } ?>
+                  </datalist>
                 </div>
               </div>
             </div>

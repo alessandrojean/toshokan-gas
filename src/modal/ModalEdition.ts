@@ -5,6 +5,7 @@ function displayEditionModal() {
   const htmlTemplate = HtmlService.createTemplateFromFile('src/modal/ModalEditionHtml')
   htmlTemplate.book = findBookByRow(row)
   htmlTemplate.properties = Utils.getAppProperties()
+  htmlTemplate.entityUniqueProperties = DatabaseService.getEntityUniqueProperties()
   
   const html = htmlTemplate.evaluate()
     .setWidth(1000)

@@ -1,6 +1,7 @@
 function displayCreationModal() {
   const htmlTemplate = HtmlService.createTemplateFromFile('src/modal/ModalCreationHtml')
   htmlTemplate.properties = Utils.getAppProperties()
+  htmlTemplate.entityUniqueProperties = DatabaseService.getEntityUniqueProperties()
 
   const html = htmlTemplate.evaluate()
     .setWidth(800)
