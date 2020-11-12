@@ -237,11 +237,7 @@ namespace CoverService {
     imageRegex?: RegExp
   }
 
-  interface SiteMap {
-    [imprint: string]: ICoverHandler
-  }
-
-  const AVAILABLE_SITES: SiteMap = {
+  const AVAILABLE_SITES: Record<string, ICoverHandler> = {
     // 'JBC': new WordpressHandler({
     //   url: 'https://mangasjbc.com.br',
     //   searchWith: BookModel.PROPERTIES.TITLE,

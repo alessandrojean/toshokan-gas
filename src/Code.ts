@@ -17,3 +17,7 @@ function onOpen() {
     .addItem('Configurações', 'displaySettingsModal')
     .addToUi();
 }
+
+// function doPost(event: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
+//   return ApiService.handlePost(event)
+// }
