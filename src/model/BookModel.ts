@@ -186,8 +186,8 @@ namespace BookModel {
     coverUrl?: string
   }
 
-  export const PROPERTIES = {
-    ISBN: 'isbn',
-    TITLE: 'title'
+  export enum Properties {
+    ISBN = 'isbn',
+    TITLE = 'title'
   }
 }

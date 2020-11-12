@@ -259,12 +259,12 @@ namespace CoverService {
     }),
     'Mino': new WordpressHandler({
       url: 'https://editoramino.com',
-      searchWith: BookModel.PROPERTIES.TITLE,
+      searchWith: BookModel.Properties.TITLE,
       collection: 'project'
     }),
     'NewPOP': new WordpressHandler({
       url: 'https://www.newpop.com.br',
-      searchWith: BookModel.PROPERTIES.ISBN
+      searchWith: BookModel.Properties.ISBN
     }),
     'Panini': new ContentStuffHandler({
       baseUrl: 'https://loja.panini.com.br',
@@ -273,33 +273,33 @@ namespace CoverService {
     }),
     'Pipoca & Nanquim': new WordpressHandler({
       url: 'https://pipocaenanquim.com.br',
-      searchWith: BookModel.PROPERTIES.TITLE,
+      searchWith: BookModel.Properties.TITLE,
       collection: 'product'
     }),
     'Shueisha': new DirectUrlHandler({
       url: 'https://dosbg3xlm0x1t.cloudfront.net/images/items/{value}/1200/{value}.jpg',
-      property: BookModel.PROPERTIES.ISBN,
+      property: BookModel.Properties.ISBN,
       propertyTransformer: isbn => isbn.replace(/-/g, '')
     }),
     'Veneta': new WordpressHandler({
       url: 'https://veneta.com.br',
-      searchWith: BookModel.PROPERTIES.TITLE,
+      searchWith: BookModel.Properties.TITLE,
       collection: 'product'
     }),
     'Vertical': new WordpressHandler({
       url: 'https://readvertical.com',
-      searchWith: BookModel.PROPERTIES.ISBN,
+      searchWith: BookModel.Properties.ISBN,
       collection: 'product',
       queryTransformer: isbn => isbn.replace(/-/g, '')
     }),
     'VIZ Media': new DirectUrlHandler({
       url: 'https://dw9to29mmj727.cloudfront.net/products/{isbn10}.jpg',
-      property: BookModel.PROPERTIES.ISBN,
+      property: BookModel.Properties.ISBN,
       propertyTransformer: isbn => Utils.convertIsbn13ToIsbn10(isbn.replace(/-/g, ''))
     }),
     'Zarabatana': new WordpressHandler({
       url: 'https://zarabatana.com.br',
-      searchWith: BookModel.PROPERTIES.TITLE,
+      searchWith: BookModel.Properties.TITLE,
       collection: 'product',
       queryParameter: 'slug',
       queryTransformer: title => Utils.slugify(title)
