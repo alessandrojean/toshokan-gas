@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edição</title>
+    <!-- Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com/">
+    <link rel="dns-prefetch" href="//rsms.me/">
+    <link rel="dns-prefetch" href="//use.fontawesome.com/">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital@0;1&display=swap" rel="stylesheet">
+    <?!= include('src/html/ModalEdition/Stylesheet'); ?>
+  </head>
+  <body>
+    <form novalidate class="px-1 py-1">      
+      <section class="level is-top-level">
+        <div class="level-left">
+          <div class="level-item">
+            <div class="tabs is-toggle">
+              <ul>
+                <li class="is-active">
+                  <a data-target="common-fields" href="#">
+                    <span class="icon is-small">
+                      <i class="fas fa-book"></i>
+                    </span>
+                    <span>Ficha</span>
+                  </a>
+                </li>
+                <li>
+                  <a data-target="additional-fields" href="#">
+                    <span class="icon is-small">
+                      <i class="fas fa-image"></i>
+                    </span>
+                    <span>Imagem</span>
+                  </a>
+                </li>
+                <? if (properties.user.SHOW_DEBUG_TOOLS === 'true') { ?>
+                <li>
+                  <a data-target="dev-debugger" href="#">
+                    <span class="icon is-small">
+                      <i class="fas fa-bug"></i>
+                    </span>
+                    <span>Debugger</span>
+                  </a>
+                </li>
+                <? } ?>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="buttons has-addons">
+              <button type="button" class="button" id="previous-button">
+                <span class="icon is-small">
+                  <i class="fas fa-chevron-left"></i>
+                </span>
+              </button>
+              <p class="button is-static" id="pagination-status">
+                <?= book.pagination.current + '/' + book.pagination.last ?>
+              </p>
+              <button type="button" class="button" id="next-button">
+                <span class="icon is-small">
+                  <i class="fas fa-chevron-right"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <!-- Mensagem de erro -->
+      <article class="message is-danger is-hidden" id="message-danger">
+        <div class="message-header">
+          <p>Ops! Um erro aconteceu</p>
+        </div>
+        <div class="message-body"></div>
+      </article>
+      
+      <!-- Imagem do volume -->
+      <aside class="is-image-column">            
+        <div class="panel">
+          <div class="panel-block" id="book-image">
+            <figure class="image is-2by3">
+              <div class="loader-wrapper">
+                <div class="loader is-loading"></div>
+              </div>
+              <img src="https://via.placeholder.com/320x480?text=Imagem%20de%20Capa">
+            </figure>
+          </div>
+          <p class="panel-block">
+            <span class="panel-icon">
+              <i class="fas fa-fingerprint" aria-hidden="true"></i>
+            </span>
+            <span id="panel-isbn" class="is-tabular"><?= book.isbn ?></span>
+            <span id="panel-isbn-type" class="tag"><?= book.getIsbnType() ?></span>
+          </p>
+          <p class="panel-block">
+            <span class="panel-icon">
+              <i class="fas fa-book" aria-hidden="true"></i>
+            </span>
+            <span id="panel-title">
+              <?= book.getTitleParts()[0] ?>
+            </span>
+            <span
+              id="panel-title-number"
+              class="tag <?= book.getTitleParts()[1] ? '' : 'is-hidden' ?>"
+            >
+              #<?= book.getTitleParts()[1] ?>
+            </span>
+          </p>
+        </div>
+      </aside>
+        
+      <!-- Inputs do formulário -->
+      <main class="tab-content-wrapper">
+        <div id="common-fields" data-tab>
+          <!-- Identificação -->
+          <div class="field">
+            <label class="label">Identificação</label>
+            <div class="control">
+              <input
+                class="input is-tabular"
+                type="text"
+                name="isbn"
+                value="<?= book.isbn ?>"
+                readonly
+              >
+            </div>
+          </div>
+    
+          <!-- Título -->
+          <div class="field">
+            <label class="label">Título</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                placeholder="ex. A Nova Ilha do Tesouro"
+                name="title"
+                value="<?= book.title ?>"
+                required
+              >
+            </div>
+            <p class="help is-danger is-hidden" id="help-danger-title"></p>
+          </div>
+          
+          <!-- Autores e Editora -->
+          <div class="columns is-variable is-2">
+            <div class="column">
+              <div class="field">
+                <label class="label">Autores</label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. Osamu Tezuka"
+                    name="authors"
+                    value="<?= book.authors ?>"
+                    required
+                  >
+                </div>
+                <p class="help" id="help-authors">
+                  Separe os autores utilizando um ponto e vírgula.
+                </p>
+                <p class="help is-danger is-hidden" id="help-danger-authors"></p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Editora</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. NewPOP"
+                    name="imprint"
+                    value="<?= book.imprint ?>"
+                    list="imprint-list"
+                    required
+                  >
+                  <datalist id="imprint-list">
+                    <? for (let imprint of entityUniqueProperties.imprints) { ?>
+                      <option><?= imprint ?></option>
+                    <? } ?>
+                  </datalist>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-imprint"></p>
+              </div>
+            </div>
+          </div>
+        
+          <!-- Formato e Preço -->
+          <div class="columns is-variable is-2">
+            <div class="column">
+              <div class="field">
+                <label class="label">Formato</label>
+                <div class="field has-addons">
+                  <div class="control">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 15,0"
+                      name="size-width"
+                      value="<?= book.size.width ?>"
+                      required
+                      pattern="\d{1,2},\d{1}"
+                      data-help-danger="size"
+                    >
+                  </div>
+                  <div class="control">
+                    <p class="button is-static">×</p>
+                  </div>
+                  <div class="control">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 21,0"
+                      name="size-height"
+                      value="<?= book.size.height ?>"
+                      required
+                      pattern="\d{1,2},\d{1}"
+                      data-help-danger="size"
+                    >
+                  </div>
+                  <div class="control">
+                    <p class="button is-static">cm</p>
+                  </div>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-size"></p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Preço de capa</label>
+                <div class="field has-addons">
+                  <div class="control">
+                    <span class="select">
+                      <select
+                        name="price-currency"
+                        data-selected="<?= book.price.currency ?>"
+                      >
+                        <option value="R$">R$</option>
+                        <option value="US$">US$</option>
+                        <option value="€">€</option>
+                        <option value="¥">¥</option>
+                      </select>
+                    </span>
+                  </div>
+                  <div class="control is-expanded">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 26,90"
+                      name="price-value"
+                      value="<?= book.price.value ?>"
+                      required
+                      pattern="\d{1,3}(,\d{2})?"
+                      data-help-danger="price"
+                    >
+                  </div>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-price"></p>
+              </div>
+            </div>
+          </div>
+              
+          <!-- Loja, Data e Estado -->
+          <div class="columns is-variable is-2">
+            <div class="column is-one-third">
+              <div class="field">
+                <label class="label">Loja</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. Presente"
+                    name="store"
+                    value="<?= book.store ?>"
+                    list="store-list"
+                  >
+                  <datalist id="store-list">
+                    <? for (let store of entityUniqueProperties.stores) { ?>
+                      <option><?= store ?></option>
+                    <? } ?>
+                  </datalist>
+                </div>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="field">
+                <label class="label">Data</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="date"
+                    placeholder="ex. 04/03/2020"
+                    name="date"
+                    value="<?= book.date8601 ?>"
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="field">
+                <label class="label">Estado</label>
+                <div class="control is-expanded">
+                  <span class="select">
+                    <select name="status" data-selected="<?= book.status ?>">
+                      <option value="Lido">Lido</option>
+                      <option value="Não lido">Não lido</option>
+                    </select>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+              
+          <!-- Controles invisíveis -->
+          <input type="hidden" name="row" value="<?= book.row ?>">
+          <input type="hidden" name="id" value="<?= book.id ?>">
+          <input type="hidden" name="book-json" value="<?= JSON.stringify(book) ?>">
+          <input type="hidden" name="has-previous" value="<?= book.pagination.hasPrevious ?>">
+          <input type="hidden" name="has-next" value="<?= book.pagination.hasNext ?>">
+          <input type="hidden" name="properties-json" value="<?= JSON.stringify(properties) ?>">
+        </div>
+            
+        <div id="additional-fields" class="is-hidden" data-tab>
+          <!-- Imagem de capa -->
+          <div class="field" id="cover-url-field">
+            <label class="label">Imagem de capa</label>
+            <div class="control has-icons-left">
+              <span class="icon is-small is-left">
+                <i class="fas fa-link"></i>
+              </span>
+              <input class="input" type="text" name="cover-url">
+            </div>
+            <p class="help is-danger" id="help-danger-cover-url"></p>
+          </div>
+        </div>
+            
+        <div id="dev-debugger" class="is-hidden" data-tab>
+          <div class="code-wrapper">
+            <pre><?= JSON.stringify(book, null, 2) ?></pre>
+          </div>
+        </div>
+      </main>
+      
+      <!-- Botões de controle -->
+      <section class="level is-bottom-level" id="control-buttons">
+        <div class="level-left">
+          <div class="level-item">
+            <button type="button" class="button is-danger" id="delete-button">
+              <span class="icon">
+                <i class="fas fa-trash"></i>
+              </span>
+              <span>Excluir</span>
+            </button>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <button type="button" class="button is-link is-light" onclick="google.script.host.close()">Cancelar</button>
+          </div>
+          <div class="level-item">
+            <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
+            <button type="submit" class="button is-link" id="submit-button">
+              <span class="icon">
+                <i class="fas fa-save"></i>
+              </span>
+              <span>Salvar</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </form>
+    
+    <div class="loader-wrapper" id="loader-general">
+      <div class="loader is-loading"></div>
+    </div>
+    
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <?!= include('src/html/ModalEdition/JavaScript'); ?>
+  </body>
+</html>

@@ -18,6 +18,12 @@ function onOpen() {
     .addToUi();
 }
 
+function include(fileName: string): string {
+  return HtmlService
+    .createHtmlOutputFromFile(fileName)
+    .getContent()
+}
+
 // function doPost(event: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
 //   return ApiService.handlePost(event)
 // }

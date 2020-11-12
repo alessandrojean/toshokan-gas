@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Criação</title>
+    <!-- Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
+    <link rel="dns-prefetch" href="//rsms.me/">
+    <link rel="dns-prefetch" href="//use.fontawesome.com/">
+    <link rel="dns-prefetch" href="//servicos.cbl.org.br/">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <?!= include('src/html/ModalCreation/Stylesheet'); ?>
+  </head>
+  <body>
+    <form novalidate>
+      <section class="is-search-prompt <?= !(properties.user.CBL_QUERY_KEY && properties.user.CBL_QUERY_KEY.length) ? "is-hidden" : "" ?>">
+        <div class="field has-addons">
+          <p class="control">
+            <a class="button is-rounded is-medium" href="https://servicos.cbl.org.br/isbn/pesquisa/" target="_blank" title="Câmara Brasileira do Livro">
+              <span class="icon">
+                <img src="https://servicos.cbl.org.br/logo.png">
+              </span>
+            </a>
+          </p>
+          <div class="control has-icons-left is-expanded" id="control-isbn">
+            <input class="input is-rounded is-tabular is-medium" type="text" placeholder="Procurar pelo ISBN…" name="isbn-search">
+            <span class="icon is-small is-left">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
+        </div>
+        <div class="is-divider" data-content="OU"></div>
+        <button type="button" class="button is-medium is-link" id="manual-add-button">Adicionar manualmente</button>
+      </section>
+      
+      <!-- Mensagem de erro -->
+      <article class="message is-danger is-hidden" id="message-danger">
+        <div class="message-header">
+          <p>Ops! Um erro aconteceu</p>
+        </div>
+        <div class="message-body"></div>
+      </article>
+      
+      <section class="px-1 py-1 <?= (properties.user.CBL_QUERY_KEY && properties.user.CBL_QUERY_KEY.length) ? "is-hidden" : "" ?>" id="form-content">
+        <div class="form-fields">
+          <!-- Identificação -->
+          <div class="field">
+            <label class="label">Identificação</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                placeholder="ex. 978-85-8362-150-8"
+                name="isbn"
+                required
+              >
+            </div>
+            <p class="help" id="help-isbn">Identificação única, como o ISBN.</p>
+            <p class="help is-danger is-hidden" id="help-danger-isbn"></p>
+          </div>
+        
+          <!-- Título -->
+          <div class="field">
+            <label class="label">Título</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                placeholder="ex. A Nova Ilha do Tesouro"
+                name="title"
+                required
+              >
+            </div>
+            <p class="help is-danger is-hidden" id="help-danger-title"></p>
+          </div>
+          
+          <!-- Autores e Editora -->
+          <div class="columns is-variable is-2">
+            <div class="column">
+              <div class="field">
+                <label class="label">Autores</label>
+                <div class="control">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. Osamu Tezuka"
+                    name="authors"
+                    required
+                  >
+                </div>
+                <p class="help" id="help-authors">Separe os autores utilizando um ponto e vírgula.</p>
+                <p class="help is-danger is-hidden" id="help-danger-authors"></p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Editora</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. NewPOP"
+                    name="imprint"
+                    list="imprint-list"
+                    required
+                  >
+                  <datalist id="imprint-list">
+                    <? for (let imprint of entityUniqueProperties.imprints) { ?>
+                      <option><?= imprint ?></option>
+                    <? } ?>
+                  </datalist>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-imprint"></p>
+              </div>
+            </div>
+          </div>
+        
+          <!-- Formato e Preço -->
+          <div class="columns is-variable is-2">
+            <div class="column">
+              <div class="field">
+                <label class="label">Formato</label>
+                <div class="field has-addons">
+                  <div class="control">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 15,0"
+                      name="size-width"
+                      required
+                      pattern="\d{1,2},\d{1}"
+                      data-help-danger="size"
+                     >
+                  </div>
+                  <div class="control">
+                    <p class="button is-static">×</p>
+                  </div>
+                  <div class="control">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 21,0"
+                      name="size-height"
+                      required
+                      pattern="\d{1,2},\d{1}"
+                      data-help-danger="size"
+                    >
+                  </div>
+                  <div class="control">
+                    <p class="button is-static">cm</p>
+                  </div>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-size"></p>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Preço de capa</label>
+                <div class="field has-addons">
+                  <div class="control">
+                    <span class="select">
+                      <select name="price-currency">
+                        <option value="R$">R$</option>
+                        <option value="US$">US$</option>
+                        <option value="€">€</option>
+                        <option value="¥">¥</option>
+                      </select>
+                    </span>
+                  </div>
+                  <div class="control is-expanded">
+                    <input
+                      class="input is-tabular"
+                      type="text"
+                      placeholder="ex. 26,90"
+                      name="price-value"
+                      required
+                      pattern="\d{1,3}(,\d{2})?"
+                      data-help-danger="price"
+                    >
+                  </div>
+                </div>
+                <p class="help is-danger is-hidden" id="help-danger-price"></p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Loja, Data e Estado -->
+          <div class="columns is-variable is-2">
+            <div class="column">
+              <div class="field">
+                <label class="label">Loja</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="ex. Presente"
+                    name="store"
+                    list="store-list"
+                  >
+                  <datalist id="store-list">
+                    <? for (let store of entityUniqueProperties.stores) { ?>
+                      <option><?= store ?></option>
+                    <? } ?>
+                  </datalist>
+                </div>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Data</label>
+                <div class="control is-expanded">
+                  <input
+                    class="input"
+                    type="date"
+                    placeholder="ex. 04/03/2020"
+                    name="date"
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Estado</label>
+                <div class="control is-expanded">
+                  <span class="select">
+                    <select name="status">
+                      <option value="Lido">Lido</option>
+                      <option value="Não lido">Não lido</option>
+                    </select>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Controles invisíveis -->
+          <input type="hidden" name="row-before">
+		    </div>
+        
+        <!-- Botões de controle -->
+        <div class="level is-bottom-level" id="control-buttons">
+          <div class="level-left">
+            <div class="level-item">
+              <button type="button" class="button is-link is-light" id="fill-info">
+                <span class="icon">
+                  <i class="fas fa-binoculars"></i>
+                </span>
+                <span>Preencher</span>
+              </button>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <button type="button" class="button is-link is-light" onclick="google.script.host.close()">Cancelar</button>
+            </div>
+            <div class="level-item">
+              <button type="submit" class="is-hidden" disabled  aria-hidden="true"></button>
+              <button type="submit" class="button is-link" id="submit-button">
+                <span class="icon is-small">
+                  <i class="fas fa-plus"></i>
+                </span>
+                <span>Adicionar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
+    
+    <div class="loader-wrapper">
+      <div class="loader is-loading"></div>
+    </div>
+    
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <?!= include('src/html/ModalCreation/JavaScript'); ?>
+  </body>
+</html>
+
+

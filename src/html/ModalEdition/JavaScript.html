@@ -1,0 +1,381 @@
+<script>    
+  const $ = document.querySelector.bind(document)
+  const $$ = document.querySelectorAll.bind(document)
+  NodeList.prototype.forEach = Array.prototype.forEach
+  
+  $('#delete-button').addEventListener('click', handleDeleteClick)
+  $('#previous-button').addEventListener('click', handlePreviousClick)
+  $('#next-button').addEventListener('click', handleNextClick)
+  
+  $('form').addEventListener('submit', handleFormSubmit)
+  $('form').addEventListener('keypress', event => event.keyCode != 13)
+
+  $('input[name=cover-url]').addEventListener('change', handleCoverUrl)
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    setupSelect()
+    tryFindCover()
+    setupTabs()
+    setupPagination()
+    setupFieldsValidation()
+  })
+  
+  /** Select **/
+  function setupSelect() {      
+    $$('select[data-selected]').forEach(e => {
+      if (!e.querySelector('option[value="' + e.dataset.selected + '"]')) {
+        const option = document.createElement('option')
+        option.text = option.value = e.dataset.selected
+        option.dataset.custom = true
+        e.add(option)
+      }
+      e.value = e.dataset.selected
+    })
+  }
+  
+  /** Pagination **/
+  
+  function setupPagination() {
+    $('#previous-button').disabled = ($('input[name=has-previous]').value === 'false')
+    $('#next-button').disabled = ($('input[name=has-next]').value === 'false')
+  }
+  
+  function handlePaginationClick(rowTransformer) {
+    const rowInput = $('input[name=row]')
+    const currentRow = parseInt(rowInput.value)
+    
+    const rowToShow = rowTransformer(currentRow)
+    
+    startLoading()
+    google.script.run
+      .withSuccessHandler(onFindBookSuccess)
+      .withFailureHandler(onFindBookFailure)
+      .findBookByRow(rowToShow)
+  }
+  
+  function handlePreviousClick() {
+    handlePaginationClick(row => row - 1)
+  }
+  
+  function handleNextClick() {
+    handlePaginationClick(row => row + 1)
+  }
+  
+  function showBook(book) {
+    if (!$('select[name=price-currency] option[value="' + book.price.currency + '"]')) {
+      const option = document.createElement('option')
+      option.text = option.value = book.price.currency
+      option.dataset.custom = true
+      $('select[name=price-currency]').add(option)
+    }
+  
+    $('input[name=isbn]').value = book.isbn
+    $('input[name=title]').value = book.title
+    $('input[name=authors]').value = book.authors
+    $('input[name=imprint]').value = book.imprint
+    $('input[name=size-width]').value = book.size.width
+    $('input[name=size-height]').value = book.size.height
+    $('select[name=price-currency]').value = book.price.currency
+    $('input[name=price-value]').value = book.price.value
+    $('input[name=store]').value = book.store
+    $('input[name=date]').value = book.date8601
+    $('select[name=status]').value = book.status
+    
+    $('input[name=row]').value = book.row
+    $('input[name=id]').value = book.id
+    $('input[name=book-json]').value = JSON.stringify(book)
+    $('input[name=has-next]').value = book.pagination.hasNext.toString()
+    $('input[name=has-previous]').value = book.pagination.hasPrevious.toString()
+    $('#pagination-status').textContent = book.pagination.current + '/' + book.pagination.last
+    
+    $('#dev-debugger pre').textContent = JSON.stringify(book, null, 2)
+    
+    $('#panel-isbn').textContent = book.isbn
+    $('#panel-isbn-type').textContent = book.isbnType
+    $('#panel-title').textContent = book.titleParts[0]
+    
+    $('#panel-title-number').classList.toggle('is-hidden', book.titleParts[1] === undefined)
+    $('#panel-title-number').textContent = '#' + book.titleParts[1]
+    
+    validateFields()
+    revalidateFields()
+  }
+  
+  function onFindBookSuccess(book) {
+    finishLoading()
+    showBook(book)
+    setupPagination()
+    tryFindCover()
+  }
+  
+  function onFindBookFailure(error) {
+    showError(error.message || error)
+  }
+  
+  /** Tabs **/
+  
+  function setupTabs() {
+    $$('.tabs li a[data-target]').forEach(t => t.addEventListener('click', handleTabChange))
+  }
+  
+  function handleTabChange(event) {      
+    const currentActive = $('.tabs li.is-active a')
+    currentActive.parentNode.classList.remove('is-active')
+    $('#' + currentActive.dataset.target).classList.add('is-hidden')
+    
+    event.target.parentNode.classList.add('is-active')
+    $('#' + event.target.dataset.target).classList.remove('is-hidden')
+  }
+  
+  /** Cover **/
+  
+  function tryFindCover() {
+    const book = JSON.parse($('input[name=book-json]').value)
+    
+    if (book.coverUrl) {
+      onFindCoverSuccess(book.coverUrl)
+      return
+    }
+    
+    resetImage()
+    $('#book-image .loader-wrapper').classList.add('is-active')
+    $('input[name=cover-url]').value = ''
+    google.script.run
+      .withSuccessHandler(onFindCoverSuccess)
+      .withFailureHandler(onFindCoverFailure)
+      .findCover(book)
+  }
+  
+  function resetImage() {
+    $('#book-image figure').classList.remove('is-danger')
+    $('#book-image .loader-wrapper').classList.remove('is-active')
+    //$('#cover-url-field p.help').textContent = ''
+    $('#cover-url-field p.help').classList.add('is-hidden')
+    $('input[name=cover-url]').classList.remove('is-danger')
+    $('#book-image img').src = 'https://via.placeholder.com/320x480?text=Imagem%20de%20Capa'
+  }
+  
+  function handleCoverUrl(event) {      
+    resetImage()
+    
+    if (!event.target.value.length) {
+      return
+    }
+    
+    const isWordpress = /\/(?!(i0|i1)\.wp\.com.*).*\/wp-content\/.*-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i
+    
+    if (event.target.value.match(isWordpress)) {
+      event.target.value = event.target.value.replace(/-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i, '.$1')
+    }
+  
+    $('#book-image .loader-wrapper').classList.add('is-active')
+    
+    const image = new Image()
+    image.onload = function () {
+      $('#book-image .loader-wrapper').classList.remove('is-active')
+      $('#book-image img').src = event.target.value
+      $('input[name=cover-url]').setCustomValidity('')
+    }
+    image.onerror = function () {
+      onFindCoverFailure({ message: 'Imagem não encontrada.' })
+    }
+    image.src = event.target.value
+  }
+  
+  function onFindCoverSuccess(coverUrl) {
+    console.log('Cover found: ' + coverUrl)
+    
+    const coverUrlInput = $('input[name=cover-url]')
+    coverUrlInput.value = coverUrl
+    coverUrlInput.dispatchEvent(new Event('change'))
+  }
+  
+  function onFindCoverFailure(error) {
+    $('#book-image .loader-wrapper').classList.remove('is-active')
+            
+    $('#book-image figure').classList.add('is-danger')
+    //$('#cover-url-field p.help').textContent = error.message
+    //$('input[name=cover-url]').classList.add('is-danger')
+    $('input[name=cover-url]').setCustomValidity(error.message)
+    $('input[name=cover-url]').checkValidity()
+  }
+  
+  function showError(error) {
+    finishLoading()
+    $$('form > *:not([id=message-danger])').forEach(e => e.classList.add('is-hidden'))
+    $('#message-danger').classList.remove('is-hidden')
+    $('#message-danger .message-body').innerHTML = error
+  }
+  
+  function startLoading() {
+    $('#loader-general').classList.add('is-active')
+  }
+  
+  function finishLoading() {
+    $('#loader-general').classList.remove('is-active')
+  }
+  
+  function handleDeleteClick() {
+    startLoading()
+    
+    const row = parseInt($('input[name=row]').value)
+    const id = $('input[name=id]').value
+    
+    google.script.run
+      .withSuccessHandler(onDeleteSuccess)
+      .withFailureHandler(onDeleteFailure)
+      .deleteEntryRow(row, id)
+  }
+  
+  function onDeleteSuccess() {
+    google.script.host.close()
+  }
+  
+  function onDeleteFailure(error) {
+    showError(error.message || error)
+  }
+  
+  const validationMessages = {
+    title: {
+      valueMissing: 'O campo do título é obrigatório, mas está vazio.'
+    },
+    authors: {
+      valueMissing: 'O campo dos autores é obrigatório, mas está vazio.'
+    },
+    imprint: {
+      valueMissing: 'O campo da editora é obrigatório, mas está vazio.'
+    },
+    'size-width': {
+      patternMismatch: 'A largura deve ser um número.',
+      valueMissing: 'O campo da largura é obrigatório, mas está vazio.'
+    },
+    'size-height': {
+      patternMismatch: 'A altura deve ser um número.',
+      valueMissing: 'O campo da altura é obrigatório, mas está vazio.'
+    },
+    'price-value': {
+      patternMismatch: 'O preço deve ser um número.',
+      valueMissing: 'O campo do preço é obrigatório, mas está vazio.'
+    }
+  }
+  
+  function clearFieldValidation(field) {
+    if (!field.validity.valid) {
+      return
+    }
+    
+    field.classList.remove('is-danger')
+    field.setCustomValidity('')
+    
+    const fieldHelp = $('p#help-' + field.name)
+    const fieldHelpDanger = $('p#help-danger-' + (field.dataset.helpDanger || field.name))
+    
+    if (fieldHelpDanger) {
+      fieldHelpDanger.classList.add('is-hidden')
+    }
+    
+    if (fieldHelp) {
+      fieldHelp.classList.remove('is-hidden')
+    }
+  }
+  
+  function showFieldValidationError(event) {
+    const field = event.target
+  
+    if (field.validity.valid) {
+      clearFieldValidation(field)          
+      return
+    }
+    
+    const fieldHelp = $('p#help-' + field.name)
+    const fieldHelpDanger = $('p#help-danger-' + (field.dataset.helpDanger || field.name))
+    
+    for (const key in field.validity) {
+      if (key !== 'valid' && field.validity[key]) {
+        fieldHelpDanger.textContent = (key === 'customError')
+          ? field.validationMessage 
+          : validationMessages[field.name][key]
+        fieldHelpDanger.classList.remove('is-hidden')
+        field.classList.add('is-danger')
+        
+        if (fieldHelp) {
+          fieldHelp.classList.add('is-hidden')
+        }
+        
+        break
+      }
+    }
+  }
+  
+  function setupFieldsValidation() {
+    $$('form [name]:not([readonly]):not([type=hidden])')
+      .forEach(field => {
+        field.addEventListener('invalid', showFieldValidationError)
+        
+        if (field.type === 'text') {
+          field.addEventListener('input', showFieldValidationError)
+        }
+      })
+  }
+  
+  function validateFields() {
+    const fields = $$('form [name]:not([readonly]):not([type=hidden])')
+    const hasErrors = Array.from(fields).filter(field => !field.checkValidity())
+    
+    return hasErrors.length > 0 ? hasErrors[0] : null
+  }
+  
+  function revalidateFields() {
+    const fields = $$('form [name]:not([readonly]):not([type=hidden])')
+    fields.forEach(clearFieldValidation)
+  }
+  
+  /** Form submit **/
+  
+  function handleFormSubmit(event) {
+    event.preventDefault()
+    
+    const validationResult = validateFields()
+    
+    if (validationResult) {
+      validationResult.focus()
+      return
+    }
+    
+    const formData = new FormData(event.target)
+    
+    startLoading()
+    const row = parseInt(formData.get('row'))
+    const date = formData.get('date')
+    const data = [
+      formData.get('isbn'),
+      formData.get('title'),
+      formData.get('authors'),
+      formData.get('imprint'),
+      formData.get('size-width') + ' × ' + formData.get('size-height'),
+      formData.get('status'),
+      formData.get('price-currency') + ' ' + formData.get('price-value'),
+      formData.get('store'),
+      date.length ? date.split('-').reverse().join('/') : date
+    ]
+    
+    const additional = {
+      id: formData.get('id'),
+      coverUrl: formData.get('cover-url')
+    }
+    
+    google.script.run
+      .withSuccessHandler(onUpdateRowSuccess)
+      .withFailureHandler(onUpdateRowFailure)
+      .updateEntryRow(row, data, additional)
+  }
+  
+  function onUpdateRowSuccess() {
+    finishLoading()
+    // google.script.host.close()
+  }
+  
+  function onUpdateRowFailure(error) {
+    showError(error.message || error)
+  }
+</script>

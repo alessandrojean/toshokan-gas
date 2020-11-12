@@ -1,5 +1,5 @@
 function displayCreationModal() {
-  const htmlTemplate = HtmlService.createTemplateFromFile('src/modal/ModalCreationHtml')
+  const htmlTemplate = HtmlService.createTemplateFromFile('src/html/ModalCreation/Modal')
   htmlTemplate.properties = Utils.getAppProperties()
   htmlTemplate.entityUniqueProperties = DatabaseService.getEntityUniqueProperties()
 

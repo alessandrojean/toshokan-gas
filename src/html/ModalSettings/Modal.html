@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurações</title>
+    <!-- Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
+    <link rel="dns-prefetch" href="//rsms.me/">
+    <link rel="dns-prefetch" href="//use.fontawesome.com/">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <?!= include('src/html/ModalSettings/Stylesheet'); ?>
+  </head>
+  <body>
+    <form>     
+      <div id="form-content">
+        <div class="columns">
+          <!-- Menu lateral -->
+          <div class="column is-one-quarter">
+            <aside class="menu">
+              <p class="menu-label">Geral</p>
+              <ul class="menu-list">
+                <li>
+                  <a data-target="behavior" class="is-active">Comportamento</a>
+                </li>
+              </ul>
+              <p class="menu-label">Serviços</p>
+              <ul class="menu-list">
+                <li>
+                  <a data-target="cbl-service">CBL</a>
+                </li>
+                <!--<li>
+                  <a>Capas</a>
+                </li>-->
+              </ul>
+              <!--<? if (properties.user.SHOW_DEBUG_TOOLS === 'true') { ?>
+              <p class="menu-label">Desenvolvimento</p>
+              <ul class="menu-list">
+                <li>
+                  <a>Flags</a>
+                </li>
+              </ul>
+              <? } ?>-->
+            </aside>
+          </div>
+        
+          <div class="column tab-content-wrapper">
+            <!-- Behavior -->
+            <section id="behavior" class="section" data-settings-group>
+              <h2 class="label">Opções de desenvolvedor</h2>
+              <label class="checkbox">
+                <input type="checkbox" name="USER_SHOW_DEBUG_TOOLS" value="true">
+                Mostrar as ferramentas de <em>debug</em>.
+              </label>
+            </section>
+            
+            <!-- CBL Service -->
+            <section id="cbl-service" class="section is-hidden" data-settings-group>
+              <!-- Access key -->
+              <div class="field">
+                <label class="label">Chave de consulta</label>
+                <div class="control">
+                  <input class="input" type="text" name="USER_CBL_QUERY_KEY">
+                </div>
+                <p class="help">
+                  Você pode obter uma chave de consulta seguindo os passos abaixo.
+                </p>
+              </div>
+
+              <article class="message is-info mt-5 mb-0">
+                <div class="message-body">
+                  Para obter a chave de consulta, no site da
+                  <a href="https://servicos.cbl.org.br/isbn/pesquisa/" target="_blank">CBL</a>
+                  abra as <em>Ferramentas de Desenvolvedor</em> e na aba
+                  <em>Console</em> execute o código abaixo.
+
+                  <pre class="my-3"><code>copy(window.searchConfig.QueryKey)</code></pre>
+
+                  Após isso, a chave estará em sua área de transferência.
+                </div>
+              </article>
+            </section>
+          </div>
+        </div>
+      
+        <!-- Botões de controle -->
+        <div class="level" id="control-buttons">
+          <div class="level-left"></div>
+          <div class="level-right">
+            <div class="level-item">
+              <button type="button" class="button is-link is-light" onclick="google.script.host.close()">Cancelar</button>
+            </div>
+            <div class="level-item">
+              <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
+              <button type="submit" class="button is-link" id="submit-button">
+                <span class="icon">
+                  <i class="fas fa-save"></i>
+                </span>
+                <span>Salvar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mensagem de erro -->
+      <article class="message is-danger is-hidden" id="message-danger">
+        <div class="message-header">
+          <p>Ops! Um erro aconteceu</p>
+        </div>
+        <div class="message-body"></div>
+      </article>
+      
+      <!-- Controles invisíveis -->
+      <input type="hidden" name="properties-json" value="<?= JSON.stringify(properties) ?>">
+    </form>
+    
+    <div class="loader-wrapper" id="loader-general">
+      <div class="loader is-loading"></div>
+    </div>
+    
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <?!= include('src/html/ModalSettings/JavaScript'); ?>
+  </body>
+</html>

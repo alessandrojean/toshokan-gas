@@ -1,7 +1,7 @@
 function displaySettingsModal() {
   const sheet = SpreadsheetApp.getActiveSheet()
   
-  const htmlTemplate = HtmlService.createTemplateFromFile('src/modal/ModalSettingsHtml')
+  const htmlTemplate = HtmlService.createTemplateFromFile('src/html/ModalSettings/Modal')
   htmlTemplate.properties = Utils.getAppProperties()
   
   const html = htmlTemplate.evaluate()
