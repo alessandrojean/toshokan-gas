@@ -1,0 +1,33 @@
+<script type="text/x-template" id="settings-behavior-template">
+  <section
+    class="section"
+    :class="{ 'is-hidden': !active }"
+    data-settings-group
+  >
+    <h2 class="label">Opções de desenvolvedor</h2>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        name="USER_SHOW_DEBUG_TOOLS"
+        value="true"
+        v-model="userShowDebugTools"
+      >
+      Mostrar as ferramentas de <em>debug</em>.
+    </label>
+  </section>
+</script>
+
+<script id="settings-behavior-script">
+  const SettingsBehavior = {
+    template: '#settings-behavior-template',
+    name: 'SettingsBehavior',
+    props: {
+      active: Boolean
+    },
+    data: function () {
+      return {
+        userShowDebugTools: PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
+      }
+    }
+  }
+</script>

@@ -25,5 +25,5 @@ function updateSettings(propertiesToUpdate: IAppProperties) {
   }
   
   Object.entries(propertiesToUpdate)
-    .forEach(([scope, value]) => properties[scope].setProperties(value))
+    .forEach(([scope, value]) => properties[scope].setProperties(value, true))
 }

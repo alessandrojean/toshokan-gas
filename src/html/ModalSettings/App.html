@@ -1,0 +1,76 @@
+<script>    
+  const propertiesJson = document.querySelector('#properties-json')
+  const PROPERTIES = JSON.parse(propertiesJson.textContent)
+
+  const app = new Vue({
+    el: '#app',
+    components: {
+      'SettingsBehavior': SettingsBehavior,
+      'SettingsCbl': SettingsCbl
+    },
+    data: () => ({
+      errorMessage: '',
+      isLoading: false,
+      menuItemActive: 'behavior',
+      menuItems: [
+        {
+          key: 'general',
+          title: 'Geral',
+          subitems: [
+            { key: 'behavior', title: 'Comportamento' }
+          ]
+        }, {
+          key: 'services',
+          title: 'Serviços',
+          subitems: [
+            { key: 'cbl', title: 'CBL' }
+          ]
+        }
+      ]
+    }),
+    methods: {
+      handleMenuClick: function (key) {
+        this.menuItemActive = key
+      },
+      handleCancelClick: function () {
+        google.script.host.close()
+      },
+      handleFormSubmit: function (event) {
+        this.isLoading = true
+
+        const formData = new FormData(event.target)
+        const properties = {}
+
+        for (const [key, value] of formData.entries()) {
+          if (!key.match(/[A-Z0-9_]+/g)) {
+            continue
+          }
+
+          const paths = key.split('_')
+          const scope = paths[0].toLowerCase()
+          const scopeKey = paths.slice(1).join('_')
+
+          if (!properties[scope]) {
+            properties[scope] = {}
+          }
+
+          properties[scope][scopeKey] = value
+        }
+
+        console.log(JSON.stringify(properties))
+
+        google.script.run
+          .withSuccessHandler(this.handleUpdateSuccess.bind(this))
+          .withFailureHandler(this.showError.bind(this))
+          .updateSettings(properties)
+      },
+      handleUpdateSuccess: function () {
+        google.script.host.close()
+      },
+      showError: function (error) {
+        this.isLoading = false
+        this.errorMessage = error.message || error
+      }
+    }
+  })
+</script>

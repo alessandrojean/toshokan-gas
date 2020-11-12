@@ -1,0 +1,47 @@
+<script type="text/x-template" id="settings-cbl-template">
+  <section
+    class="section"
+    :class="{ 'is-hidden': !active }"
+    data-settings-group
+  >
+    <div class="field">
+      <label class="label">Chave de consulta</label>
+      <div class="control">
+        <input
+          class="input"
+          type="text" 
+          name="USER_CBL_QUERY_KEY"
+          v-model="userCblQueryKey">
+      </div>
+      <p class="help">
+        Você pode obter uma chave de consulta seguindo os passos abaixo.
+      </p>
+    </div>
+
+    <article class="message is-info mt-5 mb-0">
+      <div class="message-body">
+        Para obter a chave de consulta, no site da
+        <a href="https://servicos.cbl.org.br/isbn/pesquisa/" target="_blank">CBL</a>
+        abra as <em>Ferramentas de Desenvolvedor</em> e na aba
+        <em>Console</em> execute o código abaixo.
+
+        <pre class="my-3"><code>copy(window.searchConfig.QueryKey)</code></pre>
+
+        Após isso, a chave estará em sua área de transferência.
+      </div>
+    </article>
+  </section>
+</script>
+
+<script id="settings-cbl-script">
+  const SettingsCbl = {
+    template: '#settings-cbl-template',
+    name: 'SettingsCbl',
+    props: {
+      active: Boolean
+    },
+    data: function () {
+      return { userCblQueryKey: PROPERTIES.user.CBL_QUERY_KEY }
+    }
+  }
+</script>
