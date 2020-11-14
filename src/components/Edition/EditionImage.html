@@ -1,0 +1,59 @@
+<script type="text/x-template" id="edition-image-template">
+  <div id="additional-fields" data-tab>
+    <!-- Imagem de capa -->
+    <div class="field" id="cover-url-field">
+      <label class="label">Imagem de capa</label>
+      <div class="control has-icons-left">
+        <span class="icon is-small is-left">
+          <i class="fas fa-link"></i>
+        </span>
+        <input
+          class="input"
+          type="text"
+          name="cover-url"
+          v-model="internCoverUrl"
+          :class="{ 'is-danger': coverError.length > 0 }"
+        >
+        <p class="help is-danger" v-if="coverError.length > 0">
+          {{ coverError }}
+        </p>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="edition-image-script">
+  const EditionImage = {
+    template: '#edition-image-template',
+    name: 'EditionImage',
+    props: {
+      coverUrl: String,
+      coverError: String
+    },
+    data: function () {
+      return {
+        wordpressRegex: /\/(?!(i0|i1)\.wp\.com.*).*\/wp-content\/.*-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i,
+        wordpressReplace: /-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i
+      }
+    },
+    computed: {
+      internCoverUrl: {
+        get: function () {
+          return this.coverUrl
+        },
+        set: function (newValue) {
+          this.$emit('update:coverUrl', this.increaseImageQuality(newValue))
+        }
+      }
+    },
+    methods: {
+      increaseImageQuality: function (imageUrl) {
+        if (imageUrl.match(this.wordpressRegex)) {
+          return imageUrl.replace(this.wordpressReplace, '.$1')
+        }
+
+        return imageUrl
+      }
+    }
+  }
+</script>

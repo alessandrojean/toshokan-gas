@@ -1,0 +1,22 @@
+<script type="text/x-template" id="edition-debugger-template">
+  <div id="dev-debugger" data-tab>
+    <div class="code-wrapper">
+      <pre>{{ bookJson }}</pre>
+    </div>
+  </div>
+</script>
+
+<script id="edition-debugger-script">
+  const EditionDebugger = {
+    template: '#edition-debugger-template',
+    name: 'EditionDebugger',
+    props: {
+      book: Object
+    },
+    computed: {
+      bookJson: function () {
+        return JSON.stringify(this.book, null, 2)
+      }
+    }
+  }
+</script>

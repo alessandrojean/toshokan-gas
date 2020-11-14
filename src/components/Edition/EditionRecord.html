@@ -1,0 +1,289 @@
+<script type="text/x-template" id="edition-record-template">
+  <div id="common-fields" data-tab>
+    <!-- Identificação -->
+    <div class="field">
+      <label class="label">Identificação</label>
+      <div class="control">
+        <input
+          class="input is-tabular"
+          type="text"
+          name="isbn"
+          v-model="internBook.isbn"
+          readonly
+        >
+      </div>
+    </div>
+
+    <!-- Título -->
+    <div class="field">
+      <label class="label">Título</label>
+      <div class="control">
+        <input
+          class="input"
+          type="text"
+          placeholder="ex. A Nova Ilha do Tesouro"
+          name="title"
+          v-model="internBook.title"
+          required
+          :class="{ 'is-danger': $v.internBook.title.$invalid }"
+        >
+      </div>
+      <p
+        class="help is-danger"
+        id="help-danger-title"
+        v-if="$v.internBook.title.$invalid"
+      >
+        O campo do título é obrigatório, mas está vazio.
+      </p>
+    </div>
+
+    <!-- Autores e Editora -->
+    <div class="columns is-variable is-2">
+      <div class="column">
+        <div class="field">
+          <label class="label">Autores</label>
+          <div class="control">
+            <input
+              class="input"
+              type="text"
+              placeholder="ex. Osamu Tezuka"
+              name="authors"
+              v-model="internBook.authors"
+              required
+              :class="{ 'is-danger': $v.internBook.authors.$invalid }"
+            >
+          </div>
+          <p
+            class="help"
+            id="help-authors"
+            v-if="!$v.internBook.authors.$invalid"
+          >
+            Separe os autores utilizando um ponto e vírgula.
+          </p>
+          <p
+            class="help is-danger"
+            id="help-danger-authors"
+            v-if="$v.internBook.authors.$invalid"
+          >
+            O campo dos autores é obrigatório, mas está vazio.
+          </p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="field">
+          <label class="label">Editora</label>
+          <div class="control is-expanded">
+            <input
+              class="input"
+              type="text"
+              placeholder="ex. NewPOP"
+              name="imprint"
+              v-model="internBook.imprint"
+              list="imprint-list"
+              required
+              :class="{ 'is-danger': $v.internBook.imprint.$invalid }"
+            >
+            <datalist id="imprint-list">
+              <option
+                v-for="imprint of datalists.imprints"
+                :key="imprint"
+              >
+                {{ imprint }}
+              </option>
+            </datalist>
+          </div>
+          <p
+            class="help is-danger"
+            id="help-danger-imprint"
+            v-if="$v.internBook.imprint.$invalid"
+          >
+            O campo da editora é obrigatório, mas está vazio.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formato e Preço -->
+    <div class="columns is-variable is-2">
+      <div class="column">
+        <div class="field">
+          <label class="label">Formato</label>
+          <div class="field has-addons">
+            <div class="control">
+              <input
+                class="input is-tabular"
+                type="text"
+                placeholder="ex. 15,0"
+                name="size-width"
+                v-model="internBook.size.width"
+                required
+                :class="{ 'is-danger': $v.internBook.size.width.$invalid }"
+              >
+            </div>
+            <div class="control">
+              <p class="button is-static">×</p>
+            </div>
+            <div class="control">
+              <input
+                class="input is-tabular"
+                type="text"
+                placeholder="ex. 21,0"
+                name="size-height"
+                v-model="internBook.size.height"
+                required
+                :class="{ 'is-danger': $v.internBook.size.height.$invalid }"
+              >
+            </div>
+            <div class="control">
+              <p class="button is-static">cm</p>
+            </div>
+          </div>
+          <p 
+            class="help is-danger"
+            id="help-danger-size"
+            v-if="$v.internBook.size.$invalid"
+          >
+            O formato deve ser um número válido.
+          </p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="field">
+          <label class="label">Preço de capa</label>
+          <div class="field has-addons">
+            <div class="control">
+              <span class="select">
+                <select
+                  name="price-currency"
+                  v-model="internBook.price.currency"
+                >
+                  <option value="R$">R$</option>
+                  <option value="US$">US$</option>
+                  <option value="€">€</option>
+                  <option value="¥">¥</option>
+                </select>
+              </span>
+            </div>
+            <div class="control is-expanded">
+              <input
+                class="input is-tabular"
+                type="text"
+                placeholder="ex. 26,90"
+                name="price-value"
+                v-model="internBook.price.value"
+                required
+                :class="{ 'is-danger': $v.internBook.price.value.$invalid }"
+              >
+            </div>
+          </div>
+          <p
+            class="help is-danger"
+            id="help-danger-price"
+            v-if="$v.internBook.price.$invalid"
+          >
+            O preço deve ser um número válido.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loja, Data e Estado -->
+    <div class="columns is-variable is-2">
+      <div class="column is-one-third">
+        <div class="field">
+          <label class="label">Loja</label>
+          <div class="control is-expanded">
+            <input
+              class="input"
+              type="text"
+              placeholder="ex. Presente"
+              name="store"
+              v-model="internBook.store"
+              list="store-list"
+            >
+            <datalist id="store-list">
+              <option
+                v-for="store of datalists.stores"
+                :key="store"
+              >
+                {{ store }}
+              </option>
+            </datalist>
+          </div>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="field">
+          <label class="label">Data</label>
+          <div class="control is-expanded">
+            <input
+              class="input"
+              type="date"
+              placeholder="ex. 04/03/2020"
+              name="date"
+              v-model="internBook.date8601"
+            >
+          </div>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="field">
+          <label class="label">Estado</label>
+          <div class="control is-expanded">
+            <span class="select">
+              <select name="status" v-model="internBook.status">
+                <option value="Lido">Lido</option>
+                <option value="Não lido">Não lido</option>
+              </select>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="edition-record-script">
+  const { helpers, required } = window.validators
+
+  const decimalComma = (digits) => helpers.regex(
+    'decimalComma', 
+    new RegExp(`^\\d+\\,\\d{${digits}}$`)
+  )
+
+  const EditionRecord = {
+    template: '#edition-record-template',
+    name: 'EditionRecord',
+    props: {
+      book: Object
+    },
+    data: function () {
+      return {
+        datalists: DATALISTS,
+        internBook: this.book
+      }
+    },
+    validations: {
+      internBook: {
+        title: { required },
+        authors: { required },
+        imprint: { required },
+        size: {
+          width: { required, decimalComma: decimalComma(1) },
+          height: { required, decimalComma: decimalComma(1) }
+        },
+        price: {
+          value: { required, decimalComma: decimalComma(2) }
+        }
+      }
+    },
+    watch: {
+      book: function (newValue) {
+        this.internBook = Object.assign({}, this.internBook, newValue)
+      },
+      '$v.internBook.$invalid': function (isInvalid) {
+        this.$emit('validate', isInvalid)
+      }
+    }
+  }
+</script>

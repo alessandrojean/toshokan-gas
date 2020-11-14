@@ -1,0 +1,93 @@
+<script type="text/x-template" id="edition-header-template">
+  <section class="level is-top-level">
+    <div class="level-left">
+      <div class="level-item">
+        <div class="tabs is-toggle">
+          <ul>
+            <li
+              v-for="(tab, index) in tabItemsToShow"
+              :key="tab.title"
+              :class="{ 'is-active': activeTab === index }"
+            >
+              <a @click="handleTabClick(index)">
+                <span class="icon is-small">
+                  <i :class="tab.icon"></i>
+                </span>
+                <span>{{ tab.title }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <div class="buttons has-addons">
+          <button
+            type="button"
+            class="button"
+            :disabled="!pagination.hasPrevious"
+            @click="handlePreviousClick"
+          >
+            <span class="icon is-small">
+              <i class="fas fa-chevron-left"></i>
+            </span>
+          </button>
+          <p class="button is-static" id="pagination-status">
+            {{ pagination.current + '/' + pagination.last }}
+          </p>
+          <button
+            type="button"
+            class="button"
+            :disabled="!pagination.hasNext"
+            @click="handleNextClick"
+          >
+            <span class="icon is-small">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</script>
+
+<script id="edition-header-script">
+  const EditionHeader = {
+    template: '#edition-header-template',
+    name: 'EditionHeader',
+    data: function () {
+      return {
+        activeTab: 0,
+        tabItems: [
+          { title: 'Ficha', icon: 'fas fa-book' },
+          { title: 'Imagem', icon: 'fas fa-image' },
+          { title: 'Debugger', icon: 'fas fa-bug', debug: true }
+        ]
+      }
+    },
+    props: {
+      pagination: Object,
+      row: Number
+    },
+    computed: {
+      tabItemsToShow: function () {
+        return this.tabItems.filter(t => {
+          return !t.debug || PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
+        })
+      }
+    },
+    methods: {
+      handleNextClick: function () {
+        this.$emit('pagination-change', this.row + 1)
+      },
+      handlePreviousClick: function () {
+        this.$emit('pagination-change', this.row - 1)
+      },
+      handleTabClick: function (index) {
+        this.activeTab = index
+        this.$emit('tab-change', index)
+      }
+    }
+  }
+</script>

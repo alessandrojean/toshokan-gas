@@ -1,0 +1,140 @@
+<script>
+  Vue.use(window.vuelidate.default)
+
+  const app = new Vue({
+    el: '#app',
+    components: {
+      'EditionHeader': EditionHeader,
+      'EditionPanel': EditionPanel,
+      'EditionRecord': EditionRecord,
+      'EditionImage': EditionImage,
+      'EditionDebugger': EditionDebugger
+    },
+    data: function () {
+      return {
+        activeTab: 0,
+        book: BOOK,
+        row: BOOK.row,
+        errorMessage: '',
+        coverError: '',
+        isLoading: false,
+        updatedAt: '',
+        formIsInvalid: false,
+        fetchingCover: false
+      }
+    },
+    methods: {
+      fetchCover: function () {
+        if (this.book.coverUrl && this.book.coverUrl.length) {
+          return
+        }
+
+        this.fetchingCover = true
+
+        google.script.run
+          .withSuccessHandler(this.handleFetchCoverSuccess.bind(this))
+          .withFailureHandler(this.handleFetchCoverFailure.bind(this))
+          .findCover(this.book)
+      },
+      fetchItem: function () {
+        this.isLoading = true
+
+        google.script.run
+          .withSuccessHandler(this.handleFetchItemSuccess.bind(this))
+          .withFailureHandler(this.showError.bind(this))
+          .findBookByRow(this.row)
+      },
+      handleCancelClick: function () {
+        google.script.host.close()
+      },
+      handleCoverError: function (error) {
+        this.coverError = error
+      },
+      handleCoverLoaded: function () {
+        this.coverError = ''
+      },
+      handleFetchCoverFailure: function (error) {
+        this.book.coverUrl = '',
+        this.fetchingCover = false
+        this.coverError = error.message || error
+      },
+      handleFetchCoverSuccess: function (coverUrl) {
+        this.book.coverUrl = coverUrl
+        this.fetchingCover = false
+        this.coverError = ''
+      },
+      handleFetchItemSuccess: function (book) {
+        this.isLoading = false
+        this.updatedAt = ''
+        this.coverError = ''
+        this.book = Object.assign({}, this.book, book)
+        this.row = book.row
+        
+        this.fetchCover()
+      },
+      handleFormSubmit: function (event) {
+        if (this.formIsInvalid) {
+          return
+        }
+
+        this.isLoading = true
+        const bookData = this.$refs.editionRecord.internBook
+        const date = bookData.date8601
+        
+        const rowData = [
+          bookData.isbn,
+          bookData.title,
+          bookData.authors,
+          bookData.imprint,
+          bookData.size.width + ' × ' + bookData.size.height,
+          bookData.status,
+          bookData.price.currency + ' ' + bookData.price.value,
+          bookData.store,
+          date && date.length ? date.split('-').reverse().join('/') : ''
+        ]
+
+        const additional = {
+          id: bookData.id,
+          coverUrl: bookData.coverUrl
+        }
+
+        google.script.run
+          .withSuccessHandler(this.handleFormSubmitSuccess.bind(this))
+          .withFailureHandler(this.showError.bind(this))
+          .updateEntryRow(bookData.row, rowData, additional)
+      },
+      handleFormSubmitSuccess: function () {
+        this.isLoading = false
+        this.updatedAt = new Date().toLocaleTimeString('pt-BR')
+      },
+      handleDeleteClick: function () {
+        this.isLoading = true
+
+        google.script.run
+          .withSuccessHandler(this.handleDeleteSuccess.bind(this))
+          .withFailureHandler(this.showError.bind(this))
+          .deleteEntryRow(this.book.row, this.book.id)
+      },
+      handleDeleteSuccess: function () {
+        google.script.host.close()
+      },
+      handlePaginationChange: function (row) {
+        this.row = row
+        this.fetchItem()
+      },
+      handleTabChange: function (index) {
+        this.activeTab = index
+      },
+      showError: function (error) {
+        this.isLoading = false
+        this.errorMessage = error.message || error
+      },
+      updateValidation: function (isInvalid) {
+        this.formIsInvalid = isInvalid
+      }
+    },
+    mounted: function () {
+      this.fetchCover()
+    }
+  })
+</script>

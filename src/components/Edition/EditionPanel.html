@@ -1,0 +1,123 @@
+<script type="text/x-template" id="edition-panel-template">
+  <aside class="is-image-column">
+    <div class="panel">
+      <div class="panel-block" id="book-image">
+        <figure
+          class="image is-2by3"
+          :class="{ 'is-danger': imageErrorMessage.length }"
+        >
+          <div
+            class="loader-wrapper"
+            :class="{ 'is-active': fetchingCover || imageIsLoading }"
+          >
+            <div class="loader is-loading"></div>
+          </div>
+          <img :src="imageUrl">
+        </figure>
+      </div>
+      <p class="panel-block">
+        <span class="panel-icon">
+          <i class="fas fa-fingerprint" aria-hidden="true"></i>
+        </span>
+        <span id="panel-isbn" class="is-tabular">
+          {{ book.isbn }}
+        </span>
+        <span id="panel-isbn-type" class="tag">
+          {{ book.isbnType }}
+        </span>
+      </p>
+      <p class="panel-block">
+        <span class="panel-icon">
+          <i class="fas fa-book" aria-hidden="true"></i>
+        </span>
+        <span id="panel-title">
+          {{ book.titleParts[0] }}
+        </span>
+        <span
+          id="panel-title-number"
+          class="tag"
+          v-if="book.titleParts[1]"
+        >
+          #{{ book.titleParts[1] }}
+        </span>
+      </p>
+    </div>
+  </aside>
+</script>
+
+<script id="edition-panel-script">
+  const PLACEHOLDER = 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa'
+
+  const EditionPanel = {
+    template: '#edition-panel-template',
+    name: 'EditionPanel',
+    props: {
+      book: Object,
+      fetchingCover: Boolean
+    },
+    data: function () {
+      return {
+        imageUrl: PLACEHOLDER,
+        imageErrorMessage: '',
+        imageIsLoading: true,
+        loadingUrl: PLACEHOLDER
+      }
+    },
+    computed: {
+      coverUrl: {
+        get: function () {
+          if (this.imageUrl === PLACEHOLDER) {
+            return PLACEHOLDER
+          }
+
+          return (this.imageUrl && this.imageUrl.length)
+            ? this.imageUrl : PLACEHOLDER
+        },
+        set: function (newValue) {
+          this.imageUrl = newValue
+        }
+      }
+    },
+    methods: {
+      handleImageError: function (error) {
+        this.imageUrl = PLACEHOLDER
+        this.imageErrorMessage = 'Imagem não encontrada.'
+        this.imageIsLoading = false
+        this.$emit('image-error', 'Imagem não encontrada.')
+      },
+      handleImageLoaded: function () {
+        this.imageUrl = this.loadingUrl
+        this.imageErrorMessage = ''
+        this.imageIsLoading = false
+        this.$emit('image-load')
+      },
+      loadImage: function () {
+        this.imageIsLoading = true
+
+        const image = new Image()
+        image.onload = this.handleImageLoaded.bind(this)
+        image.onerror = this.handleImageError.bind(this)
+        image.src = this.loadingUrl
+      }
+    },
+    watch: {
+      'book.coverUrl': function (newValue) {
+        if (newValue === '') {
+          this.imageUrl = PLACEHOLDER
+          this.loadingUrl = PLACEHOLDER
+          this.imageIsLoading = false
+          return
+        }
+
+        this.imageUrl = PLACEHOLDER
+        this.loadingUrl = newValue
+        this.loadImage()
+      }
+    },
+    mounted: function () {
+      this.loadingUrl = this.book.coverUrl && this.book.coverUrl.length
+        ? this.book.coverUrl : PLACEHOLDER
+      this.loadImage()
+    }
+  }
+</script>
