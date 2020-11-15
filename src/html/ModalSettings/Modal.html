@@ -48,11 +48,10 @@
                     class="button is-link is-light"
                     @click="handleCancelClick"
                   >
-                    Cancelar
+                    {{ menuItemActive === 'about' ? 'Fechar' : 'Cancelar' }}
                   </button>
                 </div>
-                <div class="level-item">
-                  <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
+                <div class="level-item" v-if="menuItemActive !== 'about'">
                   <button type="submit" class="button is-link">
                     <span class="icon">
                       <i class="fas fa-save"></i>
@@ -64,6 +63,8 @@
             </div>
           </div>
         </div>
+
+        <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
       </form>
 
       <article
@@ -88,15 +89,15 @@
       </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuex@3.5.1/dist/vuex.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@1.2.4/marked.min.js"></script>
     <!-- Properties -->
     <script type="application/json" id="properties-json">
       <?!= JSON.stringify(properties) ?>
     </script>
-    <script>
-      const propertiesJson = document.querySelector('#properties-json')
-      const PROPERTIES = JSON.parse(propertiesJson.textContent)
-    </script>
+    <!-- Store -->
+    <?!= include('src/store/Store'); ?>
     <!-- Components -->
     <?!= include('src/components/AsideMenu'); ?>
     <?!= include('src/components/Settings/SettingsBehavior'); ?>

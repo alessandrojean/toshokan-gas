@@ -1,19 +1,78 @@
 <script type="text/x-template" id="settings-about-template">
   <section
-    class="section"
+    class="section is-about"
     :class="{ 'is-hidden': !active }"
     data-settings-group
   >
-    <p>Toshokan</p>
+    <h1 class="title is-4">Sobre</h1>
+    <div class="content mt-4" v-html="markdown"></div>
+    <div class="has-text-centered mt-5">
+      <a
+        v-for="link of links"
+        :key="link.title"
+        class="button is-white is-medium"
+        target="_blank"
+        :title="link.title"
+        :href="link.href"
+      >
+        <span class="icon">
+          <i :class="link.icon"></i>
+        </span>
+      </a>
+    </div>
   </section>
 </script>
 
 <script id="settings-about-script">
+  const CURRENT_YEAR = new Date().getFullYear()
+
+  const ABOUT_MD = `
+    O Toshokan é um projeto gratuito e de código-aberto que
+    visa facilitar o gerenciamento de coleções pessoais de livros,
+    quadrinhos e mangás, e seu código-fonte pode ser obtido e 
+    averiguado a partir de seu repositório no GitHub.
+    
+    Os conteúdos, tais como imagens de capa e informações sobre
+    os livros, são retirados do banco de dados da CBL e dos
+    próprios sites das editoras quando aplicável.
+
+    #### *Disclaimer*
+
+    O projeto não possui nenhuma relação com a CBL e nem com
+    as editoras. Todas as informações utilizadas são públicas
+    e podem ser consultadas por qualquer pessoa.
+    
+    #### Licença
+    
+    Este projeto é licenciado sob os termos da licença **MIT**.
+    
+    \`\`\`
+    The MIT License (MIT) | Copyright © ${CURRENT_YEAR} Alessandro Jean
+    \`\`\`
+  `
+  const ABOUT = ABOUT_MD.replace(/^\s{4}/gm, '').trim()
+
+  const renderer = new marked.Renderer()
+  const linkRenderer = renderer.link
+  renderer.link = function (href, title, text) {
+    const html = linkRenderer.call(renderer, href, title, text)
+    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ')
+  }
+
   const SettingsAbout = {
     template: '#settings-about-template',
     name: 'SettingsAbout',
     props: {
       active: Boolean
+    },
+    data: function () {
+      return {
+        links: [
+          { title: 'GitHub', icon: 'fab fa-github', href: 'https://github.com/alessandrojean/toshokan'},
+          { title: 'Vue.js', icon: 'fab fa-vuejs', href: 'https://vuejs.org' }
+        ],
+        markdown: marked(ABOUT, { renderer })
+      }
     }
   }
 </script>

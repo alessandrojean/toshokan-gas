@@ -73,9 +73,10 @@
     computed: {
       tabItemsToShow: function () {
         return this.tabItems.filter(t => {
-          return !t.debug || PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
+          return !t.debug || this.showDebugTools
         })
-      }
+      },
+      ...Vuex.mapGetters('settings', ['showDebugTools'])
     },
     methods: {
       handleNextClick: function () {

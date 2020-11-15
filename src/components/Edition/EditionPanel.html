@@ -85,11 +85,17 @@
         }
       },
       showImageResolution: function () {
-        return PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
-          && !this.imageIsLoading && !this.fetchingCover
-          && this.imageUrl !== PLACEHOLDER
-          && this.imageResolution.length > 0
-      }
+        const conditions = [
+          this.showDebugTools,
+          !this.imageIsLoading,
+          !this.fetchingCover,
+          this.imageUrl !== PLACEHOLDER,
+          this.imageResolution.length > 0
+        ]
+
+        return conditions.every(b => b)
+      },
+      ...Vuex.mapGetters('settings', ['showDebugTools'])
     },
     methods: {
       handleImageError: function (error) {

@@ -1,0 +1,32 @@
+<script id="settings-store-script">
+  const propertiesJson = document.querySelector('#properties-json')
+
+  const settingsModule = {
+    namespaced: true,
+    state: {
+      ...JSON.parse(propertiesJson.textContent)
+    },
+    getters: {
+      cblQueryKey: function (state) {
+        return state.user.CBL_QUERY_KEY || ''
+      },
+      showDebugTools: function (state) {
+        return state.user.SHOW_DEBUG_TOOLS === 'true'
+      }
+    },
+    mutations: {
+      updateCblQueryKey: function (state, payload) {
+        state.user = { ...state.user, CBL_QUERY_KEY: payload.key }
+      },
+      updateShowDebugTools: function (state, payload) {
+        state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.show }
+      }
+    }
+  }
+
+  const store = new Vuex.Store({
+    modules: {
+      settings: settingsModule
+    }
+  })
+</script>

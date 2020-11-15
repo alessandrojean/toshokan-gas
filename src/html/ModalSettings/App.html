@@ -1,6 +1,7 @@
 <script>    
   const app = new Vue({
     el: '#app',
+    store: store,
     components: {
       'SettingsBehavior': SettingsBehavior,
       'SettingsCbl': SettingsCbl,
@@ -42,24 +43,7 @@
       handleFormSubmit: function (event) {
         this.isLoading = true
 
-        const formData = new FormData(event.target)
-        const properties = {}
-
-        for (const [key, value] of formData.entries()) {
-          if (!key.match(/[A-Z0-9_]+/g)) {
-            continue
-          }
-
-          const paths = key.split('_')
-          const scope = paths[0].toLowerCase()
-          const scopeKey = paths.slice(1).join('_')
-
-          if (!properties[scope]) {
-            properties[scope] = {}
-          }
-
-          properties[scope][scopeKey] = value
-        }
+        const properties = this.$store.state.settings
 
         console.log(JSON.stringify(properties))
 

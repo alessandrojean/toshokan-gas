@@ -21,6 +21,7 @@
 
   const app = new Vue({
     el: '#app',
+    store: store,
     components: {
       'CreationSearch': CreationSearch,
       'CreationRecord': CreationRecord,
@@ -36,8 +37,8 @@
         recordHasErrors: false,
         recordIsInvalid: false,
         steps: {
-          current: PROPERTIES.user.CBL_QUERY_KEY ? 0 : 1,
-          initial: PROPERTIES.user.CBL_QUERY_KEY ? 0 : 1,
+          current: 0,
+          initial: 0,
           final: 2
         }
       }
@@ -45,7 +46,8 @@
     computed: {
       paginationNextDisabled: function () {
         return this.recordIsInvalid || this.steps.current === this.steps.final
-      }
+      },
+      ...Vuex.mapGetters('settings', ['cblQueryKey'])
     },
     methods: {
       handleCancelClick: function () {
@@ -175,6 +177,12 @@
       showError: function (error) {
         this.isLoading = false
         this.errorMessage = error.message || error
+      }
+    },
+    created: function () {
+      if (!this.cblQueryKey.length) {
+        this.steps.current = 1
+        this.steps.initial = 1
       }
     }
   })

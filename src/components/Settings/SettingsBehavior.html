@@ -4,13 +4,14 @@
     :class="{ 'is-hidden': !active }"
     data-settings-group
   >
+    <h1 class="title is-4">Comportamento</h1>
     <h2 class="label">Opções de desenvolvedor</h2>
     <label class="checkbox">
       <input
         type="checkbox"
         name="USER_SHOW_DEBUG_TOOLS"
         value="true"
-        v-model="userShowDebugTools"
+        v-model="showDebugTools"
       >
       Mostrar as ferramentas de <em>debug</em>.
     </label>
@@ -24,9 +25,15 @@
     props: {
       active: Boolean
     },
-    data: function () {
-      return {
-        userShowDebugTools: PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
+    computed: {
+      showDebugTools: {
+        get: function () {
+          return this.$store.state.settings.user.SHOW_DEBUG_TOOLS === 'true'
+        },
+        set: function (value) {
+          const show = value.toString()
+          this.$store.commit('settings/updateShowDebugTools', { show })
+        }
       }
     }
   }

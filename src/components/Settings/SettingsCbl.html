@@ -4,6 +4,7 @@
     :class="{ 'is-hidden': !active }"
     data-settings-group
   >
+    <h1 class="title is-4">CBL</h1>
     <div class="field">
       <label class="label">Chave de consulta</label>
       <div class="control">
@@ -11,7 +12,7 @@
           class="input"
           type="text" 
           name="USER_CBL_QUERY_KEY"
-          v-model="userCblQueryKey">
+          v-model="cblQueryKey">
       </div>
       <p class="help">
         Você pode obter uma chave de consulta seguindo os passos abaixo.
@@ -40,8 +41,15 @@
     props: {
       active: Boolean
     },
-    data: function () {
-      return { userCblQueryKey: PROPERTIES.user.CBL_QUERY_KEY }
+    computed: {
+      cblQueryKey: {
+        get: function () {
+          return this.$store.state.settings.user.CBL_QUERY_KEY || ''
+        },
+        set: function (key) {
+          this.$store.commit('settings/updateCblQueryKey', { key })
+        }
+      }
     }
   }
 </script>
