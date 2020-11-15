@@ -120,7 +120,11 @@
           this.recordHasErrors = false
           this.recordIsInvalid = false
         } else if (this.steps.current === 1) {
-          this.book = Object.assign({}, this.book, this.$refs.creationRecord.internBook)
+          const internBook = this.$refs.creationRecord.internBook
+          this.book = Object.assign({}, this.book, internBook, {
+            size: { ...internBook.size },
+            price: { ...internBook.price }
+          })
         }
 
         this.steps.current = this.steps.current + 1
@@ -132,7 +136,10 @@
           this.recordHasErrors = false
           this.recordIsInvalid = false
           this.coverUrl = ''
-          this.book = Object.assign({}, this.book, INITIAL_BOOK)
+          this.book = Object.assign({}, this.book, INITIAL_BOOK, {
+            size: { ...INITIAL_BOOK.size },
+            price: { ...INITIAL_BOOK.price }
+          })
           this.sheet = Object.assign({}, this.sheet, {})
         }
       },
@@ -166,7 +173,7 @@
         this.steps.current = this.steps.current + 1
       },
       showError: function (error) {
-        this.isLoading = true
+        this.isLoading = false
         this.errorMessage = error.message || error
       }
     }

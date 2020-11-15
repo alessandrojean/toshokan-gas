@@ -278,8 +278,14 @@
       }
     },
     watch: {
-      book: function (newValue) {
-        this.internBook = Object.assign({}, this.internBook, newValue)
+      'book': function (newValue) {
+        this.internBook = Object.assign({}, this.internBook, newValue, {
+          size: { ...newValue.size },
+          price: { ...newValue.price }
+        })
+      },
+      'internBook.title': function (newValue) {
+        this.internBook.titleParts = newValue.split(/\s+#(\d+)(?:\:\s+)?/)
       },
       '$v.internBook.$invalid': function (isInvalid) {
         this.$emit('validate', isInvalid)

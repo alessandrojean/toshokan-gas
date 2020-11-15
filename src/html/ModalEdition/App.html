@@ -67,7 +67,10 @@
         this.isLoading = false
         this.updatedAt = ''
         this.coverError = ''
-        this.book = Object.assign({}, this.book, book)
+        this.book = Object.assign({}, this.book, book, {
+          size: { ...book.size },
+          price: { ...book.price }
+        })
         this.row = book.row
         
         this.fetchCover()

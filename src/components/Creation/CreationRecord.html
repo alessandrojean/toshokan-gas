@@ -311,7 +311,12 @@
       }
     },
     created: function () {
-      this.internBook = Object.assign({}, this.internBook, this.book)
+      this.internBook = Object.assign({}, this.internBook, this.book, {
+        size: { ...this.book.size },
+        price: { ...this.book.price }
+      })
+      // this.internBook.size = Object.assign({}, this.internBook, this.book.size)
+      // this.internBook.price = Object.assign({}, this.internBook.price, this.book.price)
       this.isbnReadOnly = this.book.isbn !== ''
 
       if (this.book.isbn !== '') {
@@ -325,7 +330,13 @@
     },
     watch: {
       'book': function (newValue) {
-        this.internBook = Object.assign({}, this.internBook, newValue)
+        this.internBook = Object.assign({}, this.internBook, newValue, {
+          size: { ...newValue.size },
+          price: { ...newValue.price }
+        })
+      },
+      'internBook.title': function (newValue) {
+        this.internBook.titleParts = newValue.split(/\s+#(\d+)(?:\:\s+)?/)
       },
       '$v.internBook.$error': function (hasError) {
         this.$emit('validate:error', hasError)
