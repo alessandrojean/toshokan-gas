@@ -22,42 +22,45 @@
         @submit.prevent="handleFormSubmit"
       >
         <div class="columns" v-if="!errorMessage.length">
-          <div class="column is-one-quarter">
+          <div class="column pb-0 is-one-quarter">
             <aside-menu
               :items="menuItems"
               @active="handleMenuClick">
             </aside-menu>
           </div>
-          <div class="column tab-content-wrapper">
+          <div class="column pb-0 tab-content-wrapper">
             <settings-behavior
               :active="menuItemActive === 'behavior'">
             </settings-behavior>
             <settings-cbl
               :active="menuItemActive === 'cbl'">
             </settings-cbl>
-          </div>
-        </div>
+            <settings-about
+              :active="menuItemActive === 'about'">
+            </settings-about>
 
-        <div class="level" id="control-buttons">
-          <div class="level-left"></div>
-          <div class="level-right">
-            <div class="level-item">
-              <button
-                type="button"
-                class="button is-link is-light"
-                @click="handleCancelClick"
-              >
-                Cancelar
-              </button>
-            </div>
-            <div class="level-item">
-              <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
-              <button type="submit" class="button is-link">
-                <span class="icon">
-                  <i class="fas fa-save"></i>
-                </span>
-                <span>Salvar</span>
-              </button>
+            <div class="level" id="control-buttons">
+              <div class="level-left"></div>
+              <div class="level-right">
+                <div class="level-item">
+                  <button
+                    type="button"
+                    class="button is-link is-light"
+                    @click="handleCancelClick"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <div class="level-item">
+                  <button type="submit" class="is-hidden" disabled aria-hidden="true"></button>
+                  <button type="submit" class="button is-link">
+                    <span class="icon">
+                      <i class="fas fa-save"></i>
+                    </span>
+                    <span>Salvar</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -98,6 +101,7 @@
     <?!= include('src/components/AsideMenu'); ?>
     <?!= include('src/components/Settings/SettingsBehavior'); ?>
     <?!= include('src/components/Settings/SettingsCbl'); ?>
+    <?!= include('src/components/Settings/SettingsAbout'); ?>
     <!-- App -->
     <?!= include('src/html/ModalSettings/App'); ?>
   </body>

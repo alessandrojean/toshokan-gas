@@ -1,21 +1,44 @@
 <script type="text/x-template" id="aside-menu-template">
-  <aside class="menu">
-    <template v-for="item in items">
-      <p class="menu-label" :key="item.key + '-label'">
-        {{ item.title }}
-      </p>
-      <ul class="menu-list" :key="item.key + '-list'">
-        <li v-for="subitem in item.subitems" :key="subitem.key">
-          <a
-            :class="{ 'is-active': active === subitem.key }"
-            @click="handleItemClick(subitem.key)"
-          >
-            {{ subitem.title }}
-          </a>
-        </li>
-      </ul>
-    </template>
-  </aside>
+  <div class="menus">
+    <aside class="menu">
+      <template v-for="item in topMenu">
+        <p class="menu-label" :key="item.key + '-label'">
+          {{ item.title }}
+        </p>
+        <ul class="menu-list" :key="item.key + '-list'">
+          <li v-for="subitem in item.subitems" :key="subitem.key">
+            <a
+              :class="{ 'is-active': active === subitem.key }"
+              @click="handleItemClick(subitem.key)"
+            >
+              {{ subitem.title }}
+            </a>
+          </li>
+        </ul>
+      </template>
+    </aside>
+    <aside class="menu is-bottom-menu">
+      <template v-for="item in bottomMenu">
+        <p
+          class="menu-label"
+          :key="item.key + '-list'"
+          v-if="item.title"
+        >
+          {{ item.title }}
+        </p>
+        <ul class="menu-list" :key="item.key + '-list'">
+          <li v-for="subitem in item.subitems" :key="subitem.key">
+            <a
+              :class="{ 'is-active': active === subitem.key }"
+              @click="handleItemClick(subitem.key)"
+            >
+              {{ subitem.title }}
+            </a>
+          </li>
+        </ul>
+      </template>
+    </aside>
+  </div>
 </script>
 
 <script id="aside-menu-script">
@@ -24,6 +47,14 @@
     name: 'AsideMenu',
     data: function () {
       return { active: this.items[0].subitems[0].key }
+    },
+    computed: {
+      bottomMenu: function () {
+        return this.items.filter(m => m.bottom)
+      },
+      topMenu: function () {
+        return this.items.filter(m => !m.bottom)
+      }
     },
     props: {
       items: {

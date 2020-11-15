@@ -3,7 +3,8 @@
     el: '#app',
     components: {
       'SettingsBehavior': SettingsBehavior,
-      'SettingsCbl': SettingsCbl
+      'SettingsCbl': SettingsCbl,
+      'SettingsAbout': SettingsAbout
     },
     data: () => ({
       errorMessage: '',
@@ -21,6 +22,12 @@
           title: 'Serviços',
           subitems: [
             { key: 'cbl', title: 'CBL' }
+          ]
+        }, {
+          key: 'bottom',
+          bottom: true,
+          subitems: [
+            { key: 'about', title: 'Sobre' }
           ]
         }
       ]

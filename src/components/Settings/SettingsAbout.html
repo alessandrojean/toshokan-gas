@@ -1,0 +1,19 @@
+<script type="text/x-template" id="settings-about-template">
+  <section
+    class="section"
+    :class="{ 'is-hidden': !active }"
+    data-settings-group
+  >
+    <p>Toshokan</p>
+  </section>
+</script>
+
+<script id="settings-about-script">
+  const SettingsAbout = {
+    template: '#settings-about-template',
+    name: 'SettingsAbout',
+    props: {
+      active: Boolean
+    }
+  }
+</script>
