@@ -47,7 +47,7 @@
       paginationNextDisabled: function () {
         return this.recordIsInvalid || this.steps.current === this.steps.final
       },
-      ...Vuex.mapGetters('settings', ['cblQueryKey'])
+      ...Vuex.mapGetters('settings/properties', ['cblQueryKey'])
     },
     methods: {
       handleCancelClick: function () {

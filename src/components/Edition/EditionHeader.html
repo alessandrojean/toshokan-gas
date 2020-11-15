@@ -76,7 +76,7 @@
           return !t.debug || this.showDebugTools
         })
       },
-      ...Vuex.mapGetters('settings', ['showDebugTools'])
+      ...Vuex.mapGetters('settings/properties', ['showDebugTools'])
     },
     methods: {
       handleNextClick: function () {

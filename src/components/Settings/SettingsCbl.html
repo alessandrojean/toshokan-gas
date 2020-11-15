@@ -44,10 +44,10 @@
     computed: {
       cblQueryKey: {
         get: function () {
-          return this.$store.state.settings.user.CBL_QUERY_KEY || ''
+          return this.$store.state.settings.properties.user.CBL_QUERY_KEY || ''
         },
         set: function (key) {
-          this.$store.commit('settings/updateCblQueryKey', { key })
+          this.$store.commit('settings/properties/updateCblQueryKey', { key })
         }
       }
     }

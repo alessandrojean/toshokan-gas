@@ -23,10 +23,7 @@
       >
         <div class="columns" v-if="!errorMessage.length">
           <div class="column pb-0 is-one-quarter">
-            <aside-menu
-              :items="menuItems"
-              @active="handleMenuClick">
-            </aside-menu>
+            <settings-aside-menu :items="menuItems"></settings-aside-menu>
           </div>
           <div class="column pb-0 tab-content-wrapper">
             <settings-behavior
@@ -99,7 +96,7 @@
     <!-- Store -->
     <?!= include('src/store/Store'); ?>
     <!-- Components -->
-    <?!= include('src/components/AsideMenu'); ?>
+    <?!= include('src/components/Settings/SettingsAsideMenu'); ?>
     <?!= include('src/components/Settings/SettingsBehavior'); ?>
     <?!= include('src/components/Settings/SettingsCbl'); ?>
     <?!= include('src/components/Settings/SettingsAbout'); ?>

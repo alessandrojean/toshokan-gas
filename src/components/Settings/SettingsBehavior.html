@@ -28,11 +28,11 @@
     computed: {
       showDebugTools: {
         get: function () {
-          return this.$store.state.settings.user.SHOW_DEBUG_TOOLS === 'true'
+          return this.$store.state.settings.properties.user.SHOW_DEBUG_TOOLS === 'true'
         },
         set: function (value) {
           const show = value.toString()
-          this.$store.commit('settings/updateShowDebugTools', { show })
+          this.$store.commit('settings/properties/updateShowDebugTools', { show })
         }
       }
     }

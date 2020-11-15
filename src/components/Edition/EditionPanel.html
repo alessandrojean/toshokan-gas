@@ -95,7 +95,7 @@
 
         return conditions.every(b => b)
       },
-      ...Vuex.mapGetters('settings', ['showDebugTools'])
+      ...Vuex.mapGetters('settings/properties', ['showDebugTools'])
     },
     methods: {
       handleImageError: function (error) {

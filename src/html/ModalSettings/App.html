@@ -3,6 +3,7 @@
     el: '#app',
     store: store,
     components: {
+      'SettingsAsideMenu': SettingsAsideMenu,
       'SettingsBehavior': SettingsBehavior,
       'SettingsCbl': SettingsCbl,
       'SettingsAbout': SettingsAbout
@@ -10,7 +11,6 @@
     data: () => ({
       errorMessage: '',
       isLoading: false,
-      menuItemActive: 'behavior',
       menuItems: [
         {
           key: 'general',
@@ -33,17 +33,17 @@
         }
       ]
     }),
+    computed: {
+      ...Vuex.mapGetters('settings/modal', { menuItemActive: 'activeItem' })
+    },
     methods: {
-      handleMenuClick: function (key) {
-        this.menuItemActive = key
-      },
       handleCancelClick: function () {
         google.script.host.close()
       },
       handleFormSubmit: function (event) {
         this.isLoading = true
 
-        const properties = this.$store.state.settings
+        const properties = this.$store.state.settings.properties
 
         console.log(JSON.stringify(properties))
 

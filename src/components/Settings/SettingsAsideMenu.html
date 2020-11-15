@@ -1,4 +1,4 @@
-<script type="text/x-template" id="aside-menu-template">
+<script type="text/x-template" id="settings-aside-menu-template">
   <div class="menus">
     <aside class="menu">
       <template v-for="item in topMenu">
@@ -8,7 +8,7 @@
         <ul class="menu-list" :key="item.key + '-list'">
           <li v-for="subitem in item.subitems" :key="subitem.key">
             <a
-              :class="{ 'is-active': active === subitem.key }"
+              :class="{ 'is-active': activeItem === subitem.key }"
               @click="handleItemClick(subitem.key)"
             >
               {{ subitem.title }}
@@ -29,7 +29,7 @@
         <ul class="menu-list" :key="item.key + '-list'">
           <li v-for="subitem in item.subitems" :key="subitem.key">
             <a
-              :class="{ 'is-active': active === subitem.key }"
+              :class="{ 'is-active': activeItem === subitem.key }"
               @click="handleItemClick(subitem.key)"
             >
               {{ subitem.title }}
@@ -41,20 +41,18 @@
   </div>
 </script>
 
-<script id="aside-menu-script">
-  Vue.component('AsideMenu', {
-    template: '#aside-menu-template',
-    name: 'AsideMenu',
-    data: function () {
-      return { active: this.items[0].subitems[0].key }
-    },
+<script id="settings-aside-menu-script">
+  const SettingsAsideMenu = {
+    template: '#settings-aside-menu-template',
+    name: 'SettingsAsideMenu',
     computed: {
       bottomMenu: function () {
         return this.items.filter(m => m.bottom)
       },
       topMenu: function () {
         return this.items.filter(m => !m.bottom)
-      }
+      },
+      ...Vuex.mapGetters('settings/modal', ['activeItem'])
     },
     props: {
       items: {
@@ -63,10 +61,10 @@
       }
     },
     methods: {
-      handleItemClick: function (key) {
-        this.active = key
-        this.$emit('active', key)
-      }
+      handleItemClick: function (activeItem) {
+        this.updateActiveItem({ activeItem })
+      },
+      ...Vuex.mapMutations('settings/modal', ['updateActiveItem'])
     }
-  })
+  }
 </script>

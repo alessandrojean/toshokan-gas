@@ -3,23 +3,44 @@
 
   const settingsModule = {
     namespaced: true,
-    state: {
-      ...JSON.parse(propertiesJson.textContent)
-    },
-    getters: {
-      cblQueryKey: function (state) {
-        return state.user.CBL_QUERY_KEY || ''
+    modules: {
+      properties: {
+        namespaced: true,
+        state: {
+          ...JSON.parse(propertiesJson.textContent)
+        },
+        getters: {
+          cblQueryKey: function (state) {
+            return state.user.CBL_QUERY_KEY || ''
+          },
+          showDebugTools: function (state) {
+            return state.user.SHOW_DEBUG_TOOLS === 'true'
+          }
+        },
+        mutations: {
+          updateCblQueryKey: function (state, payload) {
+            state.user = { ...state.user, CBL_QUERY_KEY: payload.key }
+          },
+          updateShowDebugTools: function (state, payload) {
+            state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.show }
+          }
+        }
       },
-      showDebugTools: function (state) {
-        return state.user.SHOW_DEBUG_TOOLS === 'true'
-      }
-    },
-    mutations: {
-      updateCblQueryKey: function (state, payload) {
-        state.user = { ...state.user, CBL_QUERY_KEY: payload.key }
-      },
-      updateShowDebugTools: function (state, payload) {
-        state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.show }
+      modal: {
+        namespaced: true,
+        state: {
+          activeItem: 'behavior'
+        },
+        getters: {
+          activeItem: function (state) {
+            return state.activeItem
+          }
+        },
+        mutations: {
+          updateActiveItem: function (state, payload) {
+            state.activeItem = payload.activeItem
+          }
+        }
       }
     }
   }
