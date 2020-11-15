@@ -21,7 +21,7 @@
         :class="{ 'is-hidden': errorMessage.length }"
         @submit.prevent="handleFormSubmit"
       >
-        <div class="columns">
+        <div class="columns" v-if="!errorMessage.length">
           <div class="column is-one-quarter">
             <aside-menu
               :items="menuItems"

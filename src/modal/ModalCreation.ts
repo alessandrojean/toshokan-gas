@@ -75,7 +75,11 @@ function findRowBefore(data: string[]) {
   return allEntries.getRow() + (rowBefore ? rowBefore.index : 0) - 1
 }
 
-function createEntryRow(data: string[], rowBefore?: number) {
+function createEntryRow(
+  data: string[], 
+  additional: BookModel.IBookAdditionalData, 
+  rowBefore?: number
+) {
   if (!rowBefore) {
     rowBefore = findRowBefore(data)
   }
@@ -85,6 +89,9 @@ function createEntryRow(data: string[], rowBefore?: number) {
 
   const range = sheet.getRange(rowBefore + 1, 2, 1, 9)
   range.setValues([data])
+
+  additional.id = findBookByRow(rowBefore + 1).getBookId()
+  updateAdditionalRow(additional)
 
   sheet.setActiveRange(range)
 }

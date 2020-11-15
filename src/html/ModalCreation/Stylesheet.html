@@ -164,25 +164,22 @@
   #form-content .columns.is-variable:not(:last-of-type) .column .field {
     margin-bottom: 0;
   }
-  
-  /** Validation animation **/
-  
-  p.help.is-danger {
-    animation: down 500ms;
+
+  /** Image **/
+
+  .is-creation-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  p.help.is-danger.is-hidden {
-    animation: down-backwards 500ms;
-    animation-fill-mode: forwards;
-    display: block !important;
+
+  .is-creation-image .card {
+    width: 35%;
   }
-  
-  p.help + p.help.is-danger {
-    animation: none;
-  }
-  
-  p.help + p.help.is-danger.is-hidden {
-    display: none !important;
+
+  .is-creation-image .card .card-footer-item .icon {
+    margin-left: calc(-.5em - 1px);
+    margin-right: .25em;
   }
   
   /** Keyframes **/

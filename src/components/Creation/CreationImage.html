@@ -1,0 +1,72 @@
+<script type="text/x-template" id="creation-image-template">
+  <section class="is-creation-image">
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title">
+          Capa
+        </p>
+        <a class="card-header-icon" @click="handleRemoveClick">
+          <span class="icon">
+            <i class="fas fa-times"></i>
+          </span>
+        </a>
+      </header>
+      <div class="card-image">
+        <figure class="image is-2by3">
+          <img :src="imageUrl">
+        </figure>
+      </div>
+      <footer class="card-footer">
+        <a class="card-footer-item" @click="fetchImage">
+          <span class="icon">
+            <i class="fas fa-search"></i>
+          </span>
+          <span>Obter</span>
+        </a>
+      </footer>
+    </div>
+  </section>
+</script>
+
+<script id="creation-image-script">
+  const PLACEHOLDER = 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa'
+  
+  const CreationImage = {
+    template: '#creation-image-template',
+    name: 'CreationImage',
+    props: {
+      book: Object,
+      coverUrl: String
+    },
+    computed: {
+      imageUrl: function () {
+        return this.coverUrl.length ? this.coverUrl : PLACEHOLDER
+      }
+    },
+    methods: {
+      fetchImage: function () {
+        if (this.coverUrl.length) {
+          return
+        }
+
+        this.$emit('image:fetch', true)
+
+        google.script.run
+          .withSuccessHandler(this.handleFetchImageSuccess.bind(this))
+          .withFailureHandler(this.handleFetchImageFailure.bind(this))
+          .findCover(this.book)
+      },
+      handleFetchImageFailure: function (error) {
+        this.$emit('update:coverUrl', '')
+        this.$emit('image:fetch', false)
+      },
+      handleFetchImageSuccess: function (coverUrl) {
+        this.$emit('update:coverUrl', coverUrl)
+        this.$emit('image:fetch', false)
+      },
+      handleRemoveClick: function () {
+        this.$emit('update:coverUrl', '')
+      }
+    }
+  }
+</script>

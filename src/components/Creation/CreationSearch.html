@@ -1,0 +1,62 @@
+<script type="text/x-template" id="creation-search-template">
+  <section class="is-search-prompt">
+    <div class="field has-addons">
+      <div class="control">
+        <p class="button is-rounded is-medium is-static">CBL</p>
+      </div>
+      <div class="control has-icons-left is-expanded" id="control-isbn">
+        <input
+          class="input is-rounded is-tabular is-medium"
+          type="text"
+          placeholder="Procurar pelo ISBN…"
+          name="isbn-search"
+          v-model="isbnToSearch"
+          @keyup.enter.stop.prevent="search"
+        >
+        <span class="icon is-small is-left">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+    </div>
+    <div class="is-divider" data-content="OU"></div>
+    <button
+      type="button"
+      class="button is-medium is-link"
+      id="manual-add-button"
+      @click="handleManualClick"
+    >
+      Adicionar manualmente
+    </button>
+  </section>
+</script>
+
+<script id="creation-search-script">
+  const CreationSearch = {
+    template: '#creation-search-template',
+    name: 'CreationSearch',
+    data: function () {
+      return {
+        isbnToSearch: ''
+      }
+    },
+    methods: {
+      handleManualClick: function () {
+        this.$emit('search:manual')
+      },
+      handleSearchFailure: function (error) {
+        this.$emit('search:error', error)
+      },
+      handleSearchSuccess: function (apiResponse) {
+        this.$emit('search:hit', apiResponse)
+      },
+      search: function () {
+        this.$emit('search:fetch')
+
+        google.script.run
+          .withSuccessHandler(this.handleSearchSuccess.bind(this))
+          .withFailureHandler(this.handleSearchFailure.bind(this))
+          .searchForCreation(this.isbnToSearch.replace(/-/g, ''))
+      }
+    }
+  }
+</script>
