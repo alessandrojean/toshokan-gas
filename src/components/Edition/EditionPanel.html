@@ -12,7 +12,13 @@
           >
             <div class="loader is-loading"></div>
           </div>
-          <img :src="imageUrl">
+          <img :src="imageUrl" ref="image">
+          <span
+            class="tag is-dark is-image-resolution"
+            v-if="showImageResolution"
+          >
+            {{ imageResolution }}
+          </span>
         </figure>
       </div>
       <p class="panel-block">
@@ -60,6 +66,7 @@
         imageUrl: PLACEHOLDER,
         imageErrorMessage: '',
         imageIsLoading: true,
+        imageResolution: '',
         loadingUrl: PLACEHOLDER
       }
     },
@@ -76,6 +83,12 @@
         set: function (newValue) {
           this.imageUrl = newValue
         }
+      },
+      showImageResolution: function () {
+        return PROPERTIES.user.SHOW_DEBUG_TOOLS === 'true'
+          && !this.imageIsLoading && !this.fetchingCover
+          && this.imageUrl !== PLACEHOLDER
+          && this.imageResolution.length > 0
       }
     },
     methods: {
@@ -83,19 +96,22 @@
         this.imageUrl = PLACEHOLDER
         this.imageErrorMessage = 'Imagem não encontrada.'
         this.imageIsLoading = false
+        this.imageResolution = ''
         this.$emit('image-error', 'Imagem não encontrada.')
       },
-      handleImageLoaded: function () {
+      handleImageLoaded: function (image) {
         this.imageUrl = this.loadingUrl
         this.imageErrorMessage = ''
         this.imageIsLoading = false
         this.$emit('image-load')
+
+        this.imageResolution = image.naturalWidth + 'x' + image.naturalHeight
       },
       loadImage: function () {
         this.imageIsLoading = true
 
         const image = new Image()
-        image.onload = this.handleImageLoaded.bind(this)
+        image.onload = this.handleImageLoaded.bind(this, image)
         image.onerror = this.handleImageError.bind(this)
         image.src = this.loadingUrl
       }
@@ -106,6 +122,7 @@
           this.imageUrl = PLACEHOLDER
           this.loadingUrl = PLACEHOLDER
           this.imageIsLoading = false
+          this.imageResolution = ''
           return
         }
 

@@ -61,6 +61,8 @@
           <edition-image
             :cover-url.sync="book.coverUrl"
             :cover-error="coverError"
+            :fetching-cover="fetchingCover"
+            @fetch:click="handleFetchCoverClick"
             :class="{ 'is-hidden': activeTab !== 1 }"
             ref="editionImage">
           </edition-image>

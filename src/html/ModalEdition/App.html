@@ -24,8 +24,8 @@
       }
     },
     methods: {
-      fetchCover: function () {
-        if (this.book.coverUrl && this.book.coverUrl.length) {
+      fetchCover: function (book) {
+        if (book.coverUrl && book.coverUrl.length) {
           return
         }
 
@@ -34,7 +34,7 @@
         google.script.run
           .withSuccessHandler(this.handleFetchCoverSuccess.bind(this))
           .withFailureHandler(this.handleFetchCoverFailure.bind(this))
-          .findCover(this.book)
+          .findCover(book)
       },
       fetchItem: function () {
         this.isLoading = true
@@ -53,13 +53,18 @@
       handleCoverLoaded: function () {
         this.coverError = ''
       },
+      handleFetchCoverClick: function () {
+        if (!this.fetchingCover) {
+          this.fetchCover(this.$refs.editionRecord.internBook)
+        }
+      },
       handleFetchCoverFailure: function (error) {
-        this.book.coverUrl = '',
+        this.$set(this.book, 'coverUrl', '')
         this.fetchingCover = false
         this.coverError = error.message || error
       },
       handleFetchCoverSuccess: function (coverUrl) {
-        this.book.coverUrl = coverUrl
+        this.$set(this.book, 'coverUrl', coverUrl)
         this.fetchingCover = false
         this.coverError = ''
       },
@@ -69,11 +74,12 @@
         this.coverError = ''
         this.book = Object.assign({}, this.book, book, {
           size: { ...book.size },
-          price: { ...book.price }
+          price: { ...book.price },
+          coverUrl: book.coverUrl || ''
         })
         this.row = book.row
         
-        this.fetchCover()
+        this.fetchCover(this.book)
       },
       handleFormSubmit: function (event) {
         if (this.formIsInvalid) {
@@ -98,7 +104,7 @@
 
         const additional = {
           id: bookData.id,
-          coverUrl: bookData.coverUrl
+          coverUrl: this.book.coverUrl
         }
 
         google.script.run
@@ -137,7 +143,7 @@
       }
     },
     mounted: function () {
-      this.fetchCover()
+      this.fetchCover(this.book)
     }
   })
 </script>

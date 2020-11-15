@@ -3,21 +3,34 @@
     <!-- Imagem de capa -->
     <div class="field" id="cover-url-field">
       <label class="label">Imagem de capa</label>
-      <div class="control has-icons-left">
-        <span class="icon is-small is-left">
-          <i class="fas fa-link"></i>
-        </span>
-        <input
-          class="input"
-          type="text"
-          name="cover-url"
-          v-model="internCoverUrl"
-          :class="{ 'is-danger': coverError.length > 0 }"
-        >
-        <p class="help is-danger" v-if="coverError.length > 0">
-          {{ coverError }}
-        </p>
+      <div class="field has-addons mb-0">
+        <div class="control is-expanded">
+          <input
+            class="input"
+            type="text"
+            name="cover-url"
+            v-model="internCoverUrl"
+            :class="{ 'is-danger': coverError.length > 0 }"
+            :disabled="fetchingCover"
+          >
+        </div>
+        <div class="control">
+          <button
+            type="button"
+            class="button"
+            @click="handleFetchClick"
+            :class="{ 'is-loading': fetchingCover }"
+          >
+            <span class="icon">
+              <i class="fas fa-search"></i>
+            </span>
+            <span>Obter</span>
+          </button>
+        </div>
       </div>
+      <p class="help is-danger" v-if="coverError.length > 0">
+        {{ coverError }}
+      </p>
     </div>
   </div>
 </script>
@@ -28,7 +41,8 @@
     name: 'EditionImage',
     props: {
       coverUrl: String,
-      coverError: String
+      coverError: String,
+      fetchingCover: Boolean
     },
     data: function () {
       return {
@@ -47,6 +61,11 @@
       }
     },
     methods: {
+      handleFetchClick: function () {
+        if (!this.fetchingCover) {
+          this.$emit('fetch:click')
+        }
+      },
       increaseImageQuality: function (imageUrl) {
         if (imageUrl.match(this.wordpressRegex)) {
           return imageUrl.replace(this.wordpressReplace, '.$1')
