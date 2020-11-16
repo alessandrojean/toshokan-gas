@@ -1,24 +1,6 @@
 <script>
   Vue.use(window.vuelidate.default)
 
-  const INITIAL_BOOK = {
-    isbn: '',
-    title: '',
-    authors: '',
-    imprint: '',
-    size: {
-      width: '',
-      height: ''
-    },
-    price: {
-      currency: 'R$',
-      value: ''
-    },
-    store: '',
-    date8601: '',
-    status: 'Lido'
-  }
-
   const app = new Vue({
     el: '#app',
     store: store,
@@ -27,67 +9,39 @@
       'CreationRecord': CreationRecord,
       'CreationImage': CreationImage
     },
-    data: function () {
-      return {
-        book: INITIAL_BOOK,
-        coverUrl: '',
-        sheet: {},
-        errorMessage: '',
-        isLoading: false,
-        recordHasErrors: false,
-        recordIsInvalid: false,
-        steps: {
-          current: 0,
-          initial: 0,
-          final: 2
-        }
-      }
-    },
     computed: {
       paginationNextDisabled: function () {
-        return this.recordIsInvalid || this.steps.current === this.steps.final
+        return this.recordInvalid || this.steps.current === this.steps.final
       },
-      ...Vuex.mapGetters('settings/properties', ['cblQueryKey'])
+      ...Vuex.mapGetters('settings/properties', ['cblQueryKey']),
+      ...Vuex.mapState('creation/modal', [
+        'error',
+        'isLoading',
+        'recordError',
+        'recordInvalid', 
+        'steps'
+      ]),
+      ...Vuex.mapGetters('creation/modal', ['hasError']),
+      ...Vuex.mapGetters('creation/cover', ['coverIsFetching']),
+      ...Vuex.mapState('book', ['rowBefore'])
     },
     methods: {
       handleCancelClick: function () {
         google.script.host.close()
       },
       handleFillInfoClick: function () {
-        this.isLoading = true
-
-        const { title, authors, imprint } = this.$refs.creationRecord.internBook
-
-        google.script.run
-          .withSuccessHandler(this.handleFillInfoSuccess.bind(this))
-          .withFailureHandler(this.showError.bind(this))
-          .searchOccurrencies({ title, authors, imprint })
-      },
-      handleFillInfoSuccess: function (sheetResult) {
-        this.isLoading = false
-
-        const internBook = this.$refs.creationRecord.internBook
-
-        this.sheet = Object.assign({}, this.sheet, sheetResult || {})
-        this.book = Object.assign({}, this.book, {
-          ...internBook,
-          title: sheetResult ? sheetResult.title : internBook.title,
-          authors: sheetResult ? sheetResult.authors : internBook.authors,
-          imprint: sheetResult? sheetResult.imprint : internBook.imprint,
-          price: sheetResult ? sheetResult.price : INITIAL_BOOK.price,
-          size: sheetResult ? sheetResult.size : INITIAL_BOOK.size,
-        })
+        this.fetchInfo('creation')
       },
       handleFormSubmit: function (event) {
-        if (this.recordHasErrors || this.steps.current !== this.steps.final) {
+        if (this.recordError || this.steps.current !== this.steps.final) {
           return
         }
 
-        this.isLoading = true
+        this.updateLoading(true)
 
-        const rowBefore = this.sheet.rowBefore
+        const rowBefore = this.rowBefore !== 0 ? this.rowBefore : undefined
 
-        const book = this.book
+        const book = this.$store.state.book
         const date = book.date8601
         const rowData = [
           book.isbn,
@@ -102,7 +56,8 @@
         ]
 
         const additional = {
-          coverUrl: this.coverUrl
+          // id: book.id,
+          coverUrl: book.coverUrl
         }
 
         google.script.run
@@ -113,76 +68,35 @@
       handleFormSubmitSuccess: function () {
         google.script.host.close()
       },
-      handleImageFetch: function (fetching) {
-        this.isLoading = fetching
-      },
       handlePaginationNext: function () {
-        if (this.steps.current === 0) {
-          this.coverUrl = ''
-          this.recordHasErrors = false
-          this.recordIsInvalid = false
-        } else if (this.steps.current === 1) {
-          const internBook = this.$refs.creationRecord.internBook
-          this.book = Object.assign({}, this.book, internBook, {
-            size: { ...internBook.size },
-            price: { ...internBook.price }
-          })
-        }
-
-        this.steps.current = this.steps.current + 1
+        this.nextStep()
       },
       handlePaginationPrevious: function () {
-        this.steps.current = this.steps.current - 1
-
-        if (this.steps.current == 0) {
-          this.recordHasErrors = false
-          this.recordIsInvalid = false
-          this.coverUrl = ''
-          this.book = Object.assign({}, this.book, INITIAL_BOOK, {
-            size: { ...INITIAL_BOOK.size },
-            price: { ...INITIAL_BOOK.price }
-          })
-          this.sheet = Object.assign({}, this.sheet, {})
-        }
-      },
-      handleRecordValidationError: function (hasErrors) {
-        this.recordHasErrors = hasErrors
-      },
-      handleRecordValidationInvalid: function (isInvalid) {
-        this.recordIsInvalid = isInvalid
-      },
-      handleSearchError: function (error) {
-        this.showError(error)
-      },
-      handleSearchFetch: function () {
-        this.isLoading = true
-      },
-      handleSearchHit: function ({ bookResult, sheetResult }) {
-        this.isLoading = false
-
-        this.book = Object.assign({}, this.book, {
-          ...bookResult,
-          price: sheetResult ? sheetResult.price : INITIAL_BOOK.price,
-          size: sheetResult ? sheetResult.size : INITIAL_BOOK.size
-        })
-        this.sheet = Object.assign({}, this.sheet, sheetResult || {})
-
-        this.steps.current = this.steps.current + 1
-      },
-      handleSearchManual: function () {
-        this.book = Object.assign({}, this.book, INITIAL_BOOK)
-        this.sheet = Object.assign({}, this.sheet, {})
-        this.steps.current = this.steps.current + 1
+        this.previousStep()
       },
       showError: function (error) {
-        this.isLoading = false
-        this.errorMessage = error.message || error
-      }
+        this.updateLoading(false)
+        this.updateError(error.message || error)
+      },
+      ...Vuex.mapActions('book', ['fetchInfo']),
+      ...Vuex.mapMutations('creation/modal', [
+        'updateLoading',
+        'updateCurrentStep',
+        'updateInitialStep',
+        'updateFinalStep',
+        'updateError'
+      ]),
+      ...Vuex.mapActions('creation/modal', ['nextStep', 'previousStep'])
     },
     created: function () {
       if (!this.cblQueryKey.length) {
-        this.steps.current = 1
-        this.steps.initial = 1
+        this.updateInitialStep(1)
+        this.updateCurrentStep(1)
+      }
+    },
+    watch: {
+      'coverIsFetching': function (isFetching) {
+        this.updateLoading(isFetching)
       }
     }
   })

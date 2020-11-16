@@ -41,14 +41,6 @@
     template: '#edition-image-template',
     name: 'EditionImage',
     computed: {
-      // internCoverUrl: {
-      //   get: function () {
-      //     return this.coverUrl
-      //   },
-      //   set: function (newValue) {
-      //     this.$emit('update:coverUrl', this.increaseImageQuality(newValue))
-      //   }
-      // },
       ...Vuex.mapGetters('book', ['bookCoverUrl']),
       ...Vuex.mapGetters('edition/cover', [
         'coverError',
@@ -59,21 +51,12 @@
     methods: {
       handleFetchClick: function () {
         if (!this.coverIsFetching) {
-          // this.$emit('fetch:click')
-          this.fetchCover()
+          this.fetchCover('edition')
         }
       },
-      // increaseImageQuality: function (imageUrl) {
-      //   if (imageUrl.match(this.wordpressRegex)) {
-      //     return imageUrl.replace(this.wordpressReplace, '.$1')
-      //   }
-
-      //   return imageUrl
-      // },
       updateCoverUrl: function (e) {
         this.$store.commit('book/updateCoverUrl', e.target.value)
       },
-      // ...Vuex.mapMutations('edition/cover', ['updateCoverFetching']),
       ...Vuex.mapActions('book', ['fetchCover'])
     }
   }

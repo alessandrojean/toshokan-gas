@@ -29,44 +29,30 @@
 </script>
 
 <script id="creation-image-script">
-  const PLACEHOLDER = 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa'
-  
   const CreationImage = {
     template: '#creation-image-template',
     name: 'CreationImage',
-    props: {
-      book: Object,
-      coverUrl: String
-    },
     computed: {
       imageUrl: function () {
-        return this.coverUrl.length ? this.coverUrl : PLACEHOLDER
-      }
+        return this.hasCover ? this.coverUrl : this.placeholder
+      },
+      ...Vuex.mapState('book', ['coverUrl']),
+      ...Vuex.mapState('creation/cover', ['placeholder']),
+      ...Vuex.mapGetters('book', ['hasCover'])
     },
     methods: {
       fetchImage: function () {
-        if (this.coverUrl.length) {
+        if (this.hasCover) {
           return
         }
 
-        this.$emit('image:fetch', true)
-
-        google.script.run
-          .withSuccessHandler(this.handleFetchImageSuccess.bind(this))
-          .withFailureHandler(this.handleFetchImageFailure.bind(this))
-          .findCover(this.book)
-      },
-      handleFetchImageFailure: function (error) {
-        this.$emit('update:coverUrl', '')
-        this.$emit('image:fetch', false)
-      },
-      handleFetchImageSuccess: function (coverUrl) {
-        this.$emit('update:coverUrl', coverUrl)
-        this.$emit('image:fetch', false)
+        this.fetchCover('creation')
       },
       handleRemoveClick: function () {
-        this.$emit('update:coverUrl', '')
-      }
+        this.updateCoverUrl('')
+      },
+      ...Vuex.mapMutations('book', ['updateCoverUrl']),
+      ...Vuex.mapActions('book', ['fetchCover'])
     }
   }
 </script>

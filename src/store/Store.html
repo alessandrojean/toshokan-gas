@@ -29,6 +29,24 @@
       hasNext: false,
       current: 0,
       last: 0
+    },
+    rowBefore: 0
+  }
+
+  const PLACEHOLDER = 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa'
+
+  const Utils = {
+    formatIsbn: function (isbn) {
+      if (!isbn.match(/^[0-9]{13}$|^[0-9]{9}[0-9xX]{1}$/)) {
+        return isbn
+      }
+
+      const replacements = {
+        10: [/(\d{2})(\d{4})(\d{3})([\dxX]{1})/, '$1-$2-$3-$4'],
+        13: [/(\d{3})(\d{2})(\d{4})(\d{3})(\d)/, '$1-$2-$3-$4-$5']
+      }
+
+      return isbn.replace.apply(isbn, replacements[isbn.length])
     }
   }
 
@@ -39,7 +57,13 @@
         return { ...INITIAL_BOOK, ...JSON.parse(bookJson.textContent) }
       }
 
-      return INITIAL_BOOK
+      return {
+        ...INITIAL_BOOK,
+        size: { ...INITIAL_BOOK.size },
+        price: { ...INITIAL_BOOK.price },
+        pagination: { ...INITIAL_BOOK.pagination },
+        titleParts: []
+      }
     },
     getters: {
       bookCoverUrl: function (state) {
@@ -57,6 +81,9 @@
       bookTitleParts: function (state) {
         return state.titleParts
       },
+      hasCover: function (state) {
+        return state.coverUrl.length > 0
+      },
       pagination: function (state) {
         return state.pagination
       },
@@ -65,38 +92,47 @@
       }
     },
     mutations: {
+      generateId: function (state) {
+        const number = state.titleParts[1] || '01'
+        let code = state.isbn
+
+        if (code === 'N/A') {
+          const title = state.title.length ? state.title : 'desconhecido'
+          const titleSlug = slugify(title).toUpperCase()
+          const titleFixedSize = titleSlug.length > 13 
+            ? titleSlug.substring(0, 13) : titleSlug
+          
+          const imprint = state.imprint.length ? state.imprint : 'editora'
+          code = imprint.toUpperCase().substring(0, 3) +
+            '-' + titleFixedSize
+        }
+
+        state.id = `${code}_${number}`
+      },
       updateBook: function (state, book) {
         Object.entries(INITIAL_BOOK)
           .forEach(([key, value]) => {
             if (typeof value === 'object') {
               state[key] = { ...value, ...book[key] }
+            } else if (key === 'isbn') {
+              state[key] = book[key] ? Utils.formatIsbn(book[key]) : value
             } else {
               state[key] = book[key] || value
             }
           })
       },
       updateIsbn: function (state, isbn) {
-        if (!isbn.match(/^[0-9]{13}$|^[0-9]{9}[0-9xX]{1}$/)) {
-          state.isbn = isbn
-          return
-        }
-
-        const replacements = {
-          10: [/(\d{2})(\d{4})(\d{3})([\dxX]{1})/, '$1-$2-$3-$4'],
-          13: [/(\d{3})(\d{2})(\d{4})(\d{3})(\d)/, '$1-$2-$3-$4-$5']
-        }
-
-        state.isbn = isbn.replace.apply(isbn, replacements[isbn.length])
+        state.isbn = isbn
       },
       updateTitle: function (state, title) {
         state.title = title
         state.titleParts = title.split(/\s+#(\d+)(?:\:\s+)?/)
       },
-      updateAuthors: function (state, authors) {
-        state.authors = authors
-      },
       updateImprint: function (state, imprint) {
         state.imprint = imprint
+      },
+      updateAuthors: function (state, authors) {
+        state.authors = authors
       },
       updateSize: function (state, payload) {
         state.size = { ...state.size, ...payload }
@@ -121,51 +157,237 @@
       },
       updateStatus: function (state, status) {
         state.status = status
+      },
+      updateRowBefore: function (state, rowBefore) {
+        state.rowBefore = rowBefore
       }
     },
     actions: {
-      fetchCover: function ({ state, commit }) {
+      fetchCover: function ({ state, commit }, module) {
         if (state.coverUrl && state.coverUrl.length) {
           return
         }
 
-        commit('edition/cover/updateCoverFetching', true, { root: true })
+        commit(`${module}/cover/updateCoverFetching`, true, { root: true })
 
         google.script.run
           .withSuccessHandler(coverUrl => {
             commit('updateCoverUrl', coverUrl)
-            commit('edition/cover/updateCoverFetching', false, { root: true })
-            commit('edition/cover/updateCoverError', '', { root: true })
+            commit(`${module}/cover/updateCoverFetching`, false, { root: true })
+            commit(`${module}/cover/updateCoverError`, '', { root: true })
           })
           .withFailureHandler(error => {
             commit('updateCoverUrl', '')
-            commit('edition/cover/updateCoverFetching', false, { root: true })
-            commit('edition/cover/updateCoverError', error.message || error, { root: true })
+            commit(`${module}/cover/updateCoverFetching`, false, { root: true })
+            commit(`${module}/cover/updateCoverError`, error.message || error, { root: true })
           })
           .findCover(state)
       },
       fetchNextBook: function ({ state, dispatch }) {
-        dispatch('fetchBook', state.row + 1)
+        dispatch('fetchBook', { row: state.row + 1, module: 'edition' })
       },
-      fetchPreviousBook: function (context) {
-        dispatch('fetchBook', statw.row - 1)
+      fetchPreviousBook: function ({ state, dispatch }) {
+        dispatch('fetchBook', { row: state.row - 1, module: 'edition' })
       },
-      fetchBook: function ({ state, commit, dispatch }, row) {
+      fetchBook: function ({ state, commit, dispatch }, { row, module }) {
         commit('edition/modal/updateLoading', true, { root: true })
 
         google.script.run
           .withSuccessHandler(book => {
             commit('edition/modal/updateLoading', false, { root: true })
             commit('edition/modal/updateUpdatedAt', '', { root: true })
-            commit('edition/cover/updateCoverError', '', { root: true })
+            commit(`${module}/cover/updateCoverError`, '', { root: true })
             commit('updateBook', book)
-            dispatch('fetchCover')
+            dispatch('fetchCover', module)
           })
           .withFailureHandler(error => {
             commit('edition/modal/updateLoading', false, { root: true })
             commit('edition/modal/updateError', error.message || error, { root: true })
           })
           .findBookByRow(row)
+      },
+      fetchInfo: function ({ state, commit, dispatch }, module) {
+        commit(`${module}/modal/updateLoading`, true, { root: true })
+
+        const { title, authors, imprint } = state
+
+        google.script.run
+          .withSuccessHandler(sheetResult => {
+            commit(`${module}/modal/updateLoading`, false, { root: true })
+
+            if (sheetResult) {
+              dispatch('changeTitle', sheetResult.title)
+              commit('updateAuthors', sheetResult.authors)
+              dispatch('changeImprint', sheetResult.imprint)
+              commit('updateSize', sheetResult.size)
+              commit('updatePrice', sheetResult.price)
+              commit('updateRowBefore', sheetResult.rowBefore)
+            }
+          })
+          .withFailureHandler(error => {
+            commit(`${module}/modal/updateLoading`, false, { root: true })
+            commit(`${module}/modal/updateError`, error.message || error, { root: true })
+          })
+          .searchOccurrencies({ title, authors, imprint })
+      },
+      changeIsbn: function ({ state, commit }, isbn) {
+        commit('updateIsbn', Utils.formatIsbn(isbn))
+        commit('generateId')
+      },
+      changeTitle: function ({ state, commit }, title) {
+        commit('updateTitle', title)
+        commit('generateId')
+      },
+      changeImprint: function ({ state, commit }, imprint) {
+        commit('updateImprint', imprint)
+        commit('generateId')
+      },
+    }
+  }
+
+  const creationModule = {
+    namespaced: true,
+    modules: {
+      cover: {
+        namespaced: true,
+        state: {
+          error: '',
+          isFetching: false,
+          isLoading: false,
+          loadingUrl: '',
+          resolution: '',
+          placeholder: PLACEHOLDER,
+        },
+        getters: {
+          coverIsFetching: function (state) {
+            return state.isFetching
+          },
+          coverIsLoading: function (state) {
+            return state.isLoading
+          },
+          coverError: function (state) {
+            return state.error
+          },
+          coverHasError: function (state) {
+            return state.error.length > 0
+          },
+          coverLoadingUrl: function (state) {
+            return state.loadingUrl
+          },
+          coverPlaceholder: function (state) {
+            return state.placeholder
+          },
+          coverResolution: function (state) {
+            return state.resolution
+          }
+        },
+        mutations: {
+          resetCoverError: function (state) {
+            state.error = ''
+          },
+          updateCoverError: function (state, error) {
+            state.error = error
+          },
+          updateCoverFetching: function (state, isFetching) {
+            state.isFetching = isFetching
+          },
+          updateCoverLoading: function (state, isLoading) {
+            state.isLoading = isLoading
+          },
+          updateCoverLoadingUrl: function (state, loadingUrl) {
+            state.loadingUrl = loadingUrl
+          },
+          updateCoverResolution: function (state, resolution) {
+            state.resolution = resolution
+          }
+        }
+      },
+      modal: {
+        namespaced: true,
+        state: {
+          error: '',
+          isLoading: false,
+          recordError: false,
+          recordInvalid: false,
+          steps: {
+            current: 0,
+            initial: 0,
+            final: 2
+          }
+        },
+        getters: {
+          hasError: function (state) {
+            return state.error.length > 0
+          }
+        },
+        mutations: {
+          updateCurrentStep: function (state, current) {
+            state.steps.current = current
+          },
+          updateInitialStep: function (state, initial) {
+            state.steps.initial = initial
+          },
+          updateFinalStep: function (state, final) {
+            state.steps.final = final
+          },
+          updateError: function (state, error) {
+            state.error = error
+          },
+          updateLoading: function (state, isLoading) {
+            state.isLoading = isLoading
+          },
+          updateRecordError: function (state, hasError) {
+            state.recordError = hasError
+          },
+          updateRecordInvalid: function (state, isInvalid) {
+            state.recordInvalid = isInvalid
+          }
+        },
+        actions: {
+          nextStep: function ({ state, commit }) {
+            if (state.steps.current === 0) {
+              commit('updateRecordInvalid', false)
+              commit('updateRecordError', false)
+            }
+
+            commit('updateCurrentStep', state.steps.current + 1)
+          },
+          previousStep: function ({ state, commit }) {
+            if (state.steps.current === 1) {
+              commit('updateRecordInvalid', false)
+              commit('updateRecordError', false)
+              commit('book/updateBook', INITIAL_BOOK, { root: true })
+            }
+
+            commit('updateCurrentStep', state.steps.current - 1)
+          },
+          fetchSearch: function ({ commit, dispatch }, isbn) {
+            commit('updateLoading', true)
+
+            google.script.run
+              .withSuccessHandler(({ bookResult, sheetResult }) => {
+                commit('updateLoading', false)
+
+                const book = {
+                  ...bookResult,
+                  title: sheetResult ? sheetResult.title : bookResult.title,
+                  authors: sheetResult ? sheetResult.authors : bookResult.authors,
+                  imprint: sheetResult ? sheetResult.imprint : bookResult.imprint,
+                  size: sheetResult ? sheetResult.size : INITIAL_BOOK.size,
+                  price: sheetResult ? sheetResult.price : INITIAL_BOOK.price,
+                  rowBefore: sheetResult ? sheetResult.rowBefore : INITIAL_BOOK.rowBefore
+                }
+
+                commit('book/updateBook', book, { root: true })
+                dispatch('nextStep')
+              })
+              .withFailureHandler(error => {
+                commit('updateLoading', false)
+                commit('updateError', error)
+              })
+              .searchForCreation(isbn.replace(/-/g, ''))
+          }
+        }
       }
     }
   }
@@ -181,7 +403,7 @@
           isLoading: false,
           loadingUrl: '',
           resolution: '',
-          placeholder: 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa',
+          placeholder: PLACEHOLDER,
         },
         getters: {
           coverIsFetching: function (state) {
@@ -315,6 +537,7 @@
   const store = new Vuex.Store({
     modules: {
       book: bookModule,
+      creation: creationModule,
       edition: editionModule,
       settings: settingsModule
     }

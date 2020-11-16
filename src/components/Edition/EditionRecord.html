@@ -304,12 +304,13 @@
         'size',
         'price',
         'store',
-        'date8601'
+        'date8601',
+        'row'
       ])
     },
     methods: {
       updateTitle: function (e) {
-        this.$store.commit('book/updateTitle', e.target.value)
+        this.$store.dispatch('book/changeTitle', e.target.value)
         this.$v.title.$touch()
       },
       updateAuthors: function (e) {
@@ -317,7 +318,7 @@
         this.$v.authors.$touch()
       },
       updateImprint: function (e) {
-        this.$store.commit('book/updateImprint', e.target.value)
+        this.$store.dispatch('book/changeImprint', e.target.value)
         this.$v.imprint.$touch()
       },
       updateSizeWidth: function (e) {
@@ -355,17 +356,10 @@
       store: { required }
     },
     watch: {
-      // 'book': function (newValue) {
-      //   this.internBook = Object.assign({}, this.internBook, newValue, {
-      //     size: { ...newValue.size },
-      //     price: { ...newValue.price }
-      //   })
-      // },
-      // 'internBook.title': function (newValue) {
-      //   this.internBook.titleParts = newValue.split(/\s+#(\d+)(?:\:\s+)?/)
-      // },
+      'row': function () {
+        this.$nextTick(() => { this.$v.$reset() })
+      },
       '$v.$invalid': function (isInvalid) {
-        // this.$emit('validate', isInvalid)
         this.updateValidation({ 
           key: 'record',
           status: { invalid: isInvalid } 

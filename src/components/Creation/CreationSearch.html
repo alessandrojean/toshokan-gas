@@ -41,22 +41,12 @@
     },
     methods: {
       handleManualClick: function () {
-        this.$emit('search:manual')
-      },
-      handleSearchFailure: function (error) {
-        this.$emit('search:error', error)
-      },
-      handleSearchSuccess: function (apiResponse) {
-        this.$emit('search:hit', apiResponse)
+        this.nextStep()
       },
       search: function () {
-        this.$emit('search:fetch')
-
-        google.script.run
-          .withSuccessHandler(this.handleSearchSuccess.bind(this))
-          .withFailureHandler(this.handleSearchFailure.bind(this))
-          .searchForCreation(this.isbnToSearch.replace(/-/g, ''))
-      }
+        this.fetchSearch(this.isbnToSearch)
+      },
+      ...Vuex.mapActions('creation/modal', ['fetchSearch', 'nextStep'])
     }
   }
 </script>

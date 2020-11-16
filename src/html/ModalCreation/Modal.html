@@ -22,48 +22,39 @@
         @submit.self.prevent="handleFormSubmit"
       >
         <!-- Mensagem de erro -->
-        <article class="message is-danger" v-if="errorMessage.length">
+        <article class="message is-danger" v-if="hasError">
           <div class="message-header">
             <p>Ops! Um erro aconteceu</p>
           </div>
           <div class="message-body">
-            {{ errorMessage }}
+            {{ error }}
           </div>
         </article>
 
         <!-- Step 01 -->
         <creation-search
-          v-if="!errorMessage.length && steps.current === 0"
-          @search:manual="handleSearchManual"
-          @search:fetch="handleSearchFetch"
-          @search:hit="handleSearchHit"
-          @search:error="handleSearchError">
+          v-if="!hasError && steps.current === 0">
         </creation-search>
 
         <section
           class="px-1 py-1"
           id="form-content"
-          v-if="!errorMessage.length && steps.current > 0"
+          v-if="!hasError && steps.current > 0"
         >
+          <!-- Step 02 -->
           <creation-record
-            v-if="steps.current === 1"
-            :book="book"
-            @validate:error="handleRecordValidationError"
-            @validate:invalid="handleRecordValidationInvalid"
-            ref="creationRecord">
+            v-if="steps.current === 1">
           </creation-record>
 
+          <!-- Step 03 -->
           <creation-image
-            v-if="steps.current === 2"
-            :book="book"
-            :cover-url.sync="coverUrl"
-            @image:fetch="handleImageFetch">
+            v-if="steps.current === 2">
           </creation-image>
 
           <!-- Botões de controle -->
           <div
             class="level is-bottom-level"
-            v-if="!errorMessage.length && steps.current > 0"
+            v-if="!hasError && steps.current > 0"
           >
             <div class="level-left">
               <div class="level-item">
@@ -115,7 +106,7 @@
                 <button
                   type="submit"
                   class="button is-link"
-                  :disabled="(steps.current < steps.final) || recordIsInvalid"
+                  :disabled="(steps.current < steps.final) || recordInvalid"
                 >
                   <span class="icon is-small">
                     <i class="fas fa-check"></i>
@@ -142,6 +133,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vuex@3.5.1/dist/vuex.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuelidate@0.7.6/dist/vuelidate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuelidate@0.7.6/dist/validators.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slugify@1.4.6/slugify.min.js"></script>
     <!-- Properties -->
     <script type="application/json" id="properties-json">
       <?!= JSON.stringify(properties) ?>
