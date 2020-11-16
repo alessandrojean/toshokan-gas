@@ -5,32 +5,36 @@
     data-settings-group
   >
     <h1 class="title is-4">CBL</h1>
-    <div class="field">
+    <div class="field is-setting">
       <label class="label">Chave de consulta</label>
-      <div class="control">
+      <div class="control" :class="{ 'has-icons-right': cblQueryKeyIsEmpty }">
         <input
           class="input"
           type="text" 
           name="USER_CBL_QUERY_KEY"
-          v-model="cblQueryKey">
+          placeholder="ex. AB20389372485D98E580C50AFCFAD453"
+          v-model="cblQueryKey"
+          :class="{ 'is-danger': cblQueryKeyIsEmpty }"
+        >
+        <span class="icon is-small is-right" v-if="cblQueryKeyIsEmpty">
+          <i class="fas fa-exclamation-circle"></i>
+        </span>
       </div>
       <p class="help">
-        Você pode obter uma chave de consulta seguindo os passos abaixo.
+        A chave de consulta permite a obtenção de informações pelo ISBN.
       </p>
+      <a 
+        :href="queryKeyHelpUrl"
+        rel="nofollow"
+        target="_blank"
+        class="button is-small is-white mt-2 has-text-grey is-help-button"
+      >
+        <span class="icon">
+          <i class="far fa-question-circle"></i>
+        </span>
+        <span>Aprenda como obter a chave de consulta.</span>
+      </a>
     </div>
-
-    <article class="message is-info mt-5 mb-0">
-      <div class="message-body">
-        Para obter a chave de consulta, no site da
-        <a href="https://servicos.cbl.org.br/isbn/pesquisa/" target="_blank">CBL</a>
-        abra as <em>Ferramentas de Desenvolvedor</em> e na aba
-        <em>Console</em> execute o código abaixo.
-
-        <pre class="my-3"><code>copy(window.searchConfig.QueryKey)</code></pre>
-
-        Após isso, a chave estará em sua área de transferência.
-      </div>
-    </article>
   </section>
 </script>
 
@@ -41,6 +45,11 @@
     props: {
       active: Boolean
     },
+    data: function () {
+      return {
+        queryKeyHelpUrl: 'https://gist.github.com/alessandrojean/49a55de5857faab04c7fcf06b8c8b88b#configura%C3%A7%C3%A3o'
+      }
+    },
     computed: {
       cblQueryKey: {
         get: function () {
@@ -49,7 +58,8 @@
         set: function (key) {
           this.$store.commit('settings/properties/updateCblQueryKey', { key })
         }
-      }
+      },
+      ...Vuex.mapGetters('settings/properties', ['cblQueryKeyIsEmpty'])
     }
   }
 </script>

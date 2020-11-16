@@ -69,6 +69,7 @@ function includeCssDependencies(): string {
 
   const dependencies = [
     'https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css',
+    'https://cdn.jsdelivr.net/npm/bulma-switch@2.0.0/dist/css/bulma-switch.min.css',
     'https://rsms.me/inter/inter.css',
     'https://fonts.googleapis.com/css2?family=Roboto+Mono:ital@0;1&display=swap',
     'https://use.fontawesome.com/releases/v5.3.1/css/all.css'

@@ -516,6 +516,9 @@
           cblQueryKey: function (state) {
             return state.user.CBL_QUERY_KEY || ''
           },
+          cblQueryKeyIsEmpty: function (state) {
+            return state.user.CBL_QUERY_KEY.length === 0
+          },
           showDebugTools: function (state) {
             return state.user.SHOW_DEBUG_TOOLS === 'true'
           }

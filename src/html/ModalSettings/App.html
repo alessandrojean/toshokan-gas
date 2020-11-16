@@ -22,7 +22,12 @@
           key: 'services',
           title: 'Serviços',
           subitems: [
-            { key: 'cbl', title: 'CBL', icon: 'fas fa-atlas' }
+            { 
+              key: 'cbl',
+              title: 'CBL',
+              icon: 'fas fa-atlas',
+              warningIf: 'settings/properties/cblQueryKeyIsEmpty'
+            }
           ]
         }, {
           key: 'bottom',

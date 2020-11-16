@@ -120,7 +120,33 @@
     animation: up 500ms;
   }
 
-  .menu-list a .icon {
-    margin-right: 0.5em;
+  .menu-list a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .menu-list a.is-active {
+    color: hsl(217, 71%, 45%);
+    background-color: hsl(219, 70%, 96%);
+  }
+
+  .menu-list a .icon + span {
+    margin-left: 0.5em;
+  }
+
+  .menu-list a .icon.has-text-danger {
+    margin-left: auto;
+  }
+
+  .is-setting {
+    border-top: hsl(0, 0%, 90%) 1px solid;
+    border-bottom: hsl(0, 0%, 90%) 1px solid;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+  }
+
+  .is-help-button {
+    margin-left: -0.75em;
   }
 </style>
