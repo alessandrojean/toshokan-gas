@@ -1,6 +1,7 @@
 <script id="settings-store-script">
   const propertiesJson = document.querySelector('#properties-json')
   const bookJson = document.querySelector('#book-json')
+  const datalistsJson = document.querySelector('#datalists-json')
 
   const INITIAL_BOOK = {
     isbn: '',
@@ -242,6 +243,18 @@
         commit('updateImprint', imprint)
         commit('generateId')
       },
+    },
+    modules: {
+      datalist: {
+        namespaced: true,
+        state: function () {
+          if (datalistsJson) {
+            return { ...JSON.parse(datalistsJson.textContent) }
+          }
+
+          return {}
+        }
+      }
     }
   }
 

@@ -129,10 +129,6 @@
     <?!= includeJson('properties', properties); ?>
     <!-- Datalists -->
     <?!= includeJson('datalists', entityUniqueProperties); ?>
-    <script>
-      const datalistsJson = document.querySelector('#datalists-json')
-      const DATALISTS = JSON.parse(datalistsJson.textContent)
-    </script>
     <!-- Store -->
     <?!= include('src/store/Store'); ?>
     <!-- Components -->

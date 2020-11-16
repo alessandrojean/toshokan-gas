@@ -88,7 +88,7 @@
             >
             <datalist id="imprint-list">
               <option
-                v-for="imprint of datalists.imprints"
+                v-for="imprint of imprints"
                 :key="imprint"
               >
                 {{ imprint }}
@@ -214,7 +214,7 @@
             >
             <datalist id="store-list">
               <option
-                v-for="store of datalists.stores"
+                v-for="store of stores"
                 :key="store"
               >
                 {{ store }}
@@ -275,7 +275,6 @@
     name: 'EditionRecord',
     data: function () {
       return {
-        datalists: DATALISTS,
         currencies: ['R$', 'US$', '€', '¥']
       }
     },
@@ -306,7 +305,8 @@
         'store',
         'date8601',
         'row'
-      ])
+      ]),
+      ...Vuex.mapState('book/datalist', ['imprints', 'stores'])
     },
     methods: {
       updateTitle: function (e) {
