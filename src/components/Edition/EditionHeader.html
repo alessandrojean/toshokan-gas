@@ -58,7 +58,6 @@
     name: 'EditionHeader',
     data: function () {
       return {
-        activeTab: 0,
         tabItems: [
           { title: 'Ficha', icon: 'fas fa-book' },
           { title: 'Imagem', icon: 'fas fa-image' },
@@ -73,7 +72,8 @@
         })
       },
       ...Vuex.mapGetters('settings/properties', ['showDebugTools']),
-      ...Vuex.mapGetters('book', ['pagination', 'row'])
+      ...Vuex.mapGetters('book', ['pagination', 'row']),
+      ...Vuex.mapState('edition/modal', ['activeTab'])
     },
     methods: {
       handleNextClick: function () {
@@ -85,10 +85,10 @@
         this.fetchPreviousBook()
       },
       handleTabClick: function (index) {
-        this.activeTab = index
-        this.$emit('tab-change', index)
+        this.updateActiveTab(index)
       },
-      ...Vuex.mapActions('book', ['fetchNextBook', 'fetchPreviousBook'])
+      ...Vuex.mapActions('book', ['fetchNextBook', 'fetchPreviousBook']),
+      ...Vuex.mapMutations('edition/modal', ['updateActiveTab'])
     }
   }
 </script>

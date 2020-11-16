@@ -23,10 +23,7 @@
         class="px-1 py-1"
         @submit.prevent="handleFormSubmit"
       >
-        <edition-header
-          @tab-change="handleTabChange"
-          v-if="!hasError">
-        </edition-header>
+        <edition-header v-if="!hasError"></edition-header>
 
         <article
           class="message is-danger"

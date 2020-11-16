@@ -11,21 +11,9 @@
       'EditionImage': EditionImage,
       'EditionDebugger': EditionDebugger
     },
-    data: function () {
-      return {
-        activeTab: 0,
-        // book: BOOK,
-        // row: BOOK.row,
-        // errorMessage: '',
-        // coverError: '',
-        // isLoading: false,
-        // updatedAt: '',
-        // formIsInvalid: false,
-        // fetchingCover: false
-      }
-    },
     computed: {
       ...Vuex.mapState('edition/modal', [
+        'activeTab',
         'error', 
         'isLoading',
         'updatedAt',
@@ -38,51 +26,9 @@
       })
     },
     methods: {
-      // fetchItem: function () {
-      //   this.isLoading = true
-
-      //   google.script.run
-      //     .withSuccessHandler(this.handleFetchItemSuccess.bind(this))
-      //     .withFailureHandler(this.showError.bind(this))
-      //     .findBookByRow(this.row)
-      // },
       handleCancelClick: function () {
         google.script.host.close()
       },
-      // handleCoverError: function (error) {
-      //   this.coverError = error
-      // },
-      // handleCoverLoaded: function () {
-      //   this.coverError = ''
-      // },
-      // handleFetchCoverClick: function () {
-      //   if (!this.fetchingCover) {
-      //     this.fetchCover(this.$refs.editionRecord.internBook)
-      //   }
-      // },
-      // handleFetchCoverFailure: function (error) {
-      //   this.$set(this.book, 'coverUrl', '')
-      //   this.fetchingCover = false
-      //   this.coverError = error.message || error
-      // },
-      // handleFetchCoverSuccess: function (coverUrl) {
-      //   this.$set(this.book, 'coverUrl', coverUrl)
-      //   this.fetchingCover = false
-      //   this.coverError = ''
-      // },
-      // handleFetchItemSuccess: function (book) {
-      //   this.isLoading = false
-      //   this.updatedAt = ''
-      //   this.coverError = ''
-      //   this.book = Object.assign({}, this.book, book, {
-      //     size: { ...book.size },
-      //     price: { ...book.price },
-      //     coverUrl: book.coverUrl || ''
-      //   })
-      //   this.row = book.row
-        
-      //   this.fetchCover(this.book)
-      // },
       handleFormSubmit: function (event) {
         if (this.validation.record.invalid) {
           return
@@ -129,20 +75,10 @@
       handleDeleteSuccess: function () {
         google.script.host.close()
       },
-      // handlePaginationChange: function (row) {
-      //   this.row = row
-      //   this.fetchItem()
-      // },
-      handleTabChange: function (index) {
-        this.activeTab = index
-      },
       showError: function (error) {
         this.updateLoading(false)
         this.updateError(error.message || error)
       },
-      // updateValidation: function (isInvalid) {
-      //   this.formIsInvalid = isInvalid
-      // },
       ...Vuex.mapActions('book', ['fetchCover']),
       ...Vuex.mapMutations('edition/modal', [
         'updateLoading',

@@ -230,6 +230,7 @@
       modal: {
         namespaced: true,
         state: {
+          activeTab: 0,
           error: '',
           isLoading: false,
           updatedAt: '',
@@ -244,6 +245,9 @@
           }
         },
         mutations: {
+          updateActiveTab: function (state, index) {
+            state.activeTab = index
+          },
           updateError: function (state, error) {
             state.error = error
           },
