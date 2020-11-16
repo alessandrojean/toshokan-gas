@@ -4,14 +4,9 @@
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configurações</title>
-    <!-- Prefetch -->
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
-    <link rel="dns-prefetch" href="//rsms.me/">
-    <link rel="dns-prefetch" href="//use.fontawesome.com/">
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
-    <link href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" rel="stylesheet">
+    <!-- CSS Dependencies -->
+    <?!= includeCssDependencies(); ?>
+    <!-- Custom Stylesheet -->
     <?!= include('src/html/ModalSettings/Stylesheet'); ?>
   </head>
   <body>
@@ -86,20 +81,17 @@
       </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuex@3.5.1/dist/vuex.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@1.2.4/marked.min.js"></script>
+    <!-- JS Dependencies -->
+    <?!= includeJsDependencies(); ?>
     <!-- Properties -->
-    <script type="application/json" id="properties-json">
-      <?!= JSON.stringify(properties) ?>
-    </script>
+    <?!= includeJson('properties', properties); ?>
     <!-- Store -->
     <?!= include('src/store/Store'); ?>
     <!-- Components -->
-    <?!= include('src/components/Settings/SettingsAsideMenu'); ?>
-    <?!= include('src/components/Settings/SettingsBehavior'); ?>
-    <?!= include('src/components/Settings/SettingsCbl'); ?>
-    <?!= include('src/components/Settings/SettingsAbout'); ?>
+    <?!= includeComponent('Settings/SettingsAsideMenu'); ?>
+    <?!= includeComponent('Settings/SettingsBehavior'); ?>
+    <?!= includeComponent('Settings/SettingsCbl'); ?>
+    <?!= includeComponent('Settings/SettingsAbout'); ?>
     <!-- App -->
     <?!= include('src/html/ModalSettings/App'); ?>
   </body>

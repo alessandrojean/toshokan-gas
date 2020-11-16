@@ -4,16 +4,10 @@
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Criação</title>
-    <!-- Prefetch -->
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net/">
-    <link rel="dns-prefetch" href="//rsms.me/">
-    <link rel="dns-prefetch" href="//use.fontawesome.com/">
-    <link rel="dns-prefetch" href="//servicos.cbl.org.br/">
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
-    <link href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" rel="stylesheet">
-   <?!= include('src/html/ModalCreation/Stylesheet'); ?>
+    <!-- CSS Dependencies -->
+    <?!= includeCssDependencies(); ?>
+    <!-- Custom Stylesheet -->
+    <?!= include('src/html/ModalCreation/Stylesheet'); ?>
   </head>
   <body>
     <div id="app">
@@ -129,19 +123,12 @@
       </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuex@3.5.1/dist/vuex.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuelidate@0.7.6/dist/vuelidate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuelidate@0.7.6/dist/validators.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/slugify@1.4.6/slugify.min.js"></script>
+    <!-- Dependencies -->
+    <?!= includeJsDependencies(); ?>
     <!-- Properties -->
-    <script type="application/json" id="properties-json">
-      <?!= JSON.stringify(properties) ?>
-    </script>
+    <?!= includeJson('properties', properties); ?>
     <!-- Datalists -->
-    <script type="application/json" id="datalists-json">
-      <?!= JSON.stringify(entityUniqueProperties) ?>
-    </script>
+    <?!= includeJson('datalists', entityUniqueProperties); ?>
     <script>
       const datalistsJson = document.querySelector('#datalists-json')
       const DATALISTS = JSON.parse(datalistsJson.textContent)
@@ -149,9 +136,9 @@
     <!-- Store -->
     <?!= include('src/store/Store'); ?>
     <!-- Components -->
-    <?!= include('src/components/Creation/CreationSearch'); ?>
-    <?!= include('src/components/Creation/CreationRecord'); ?>
-    <?!= include('src/components/Creation/CreationImage'); ?>
+    <?!= includeComponent('Creation/CreationSearch'); ?>
+    <?!= includeComponent('Creation/CreationRecord'); ?>
+    <?!= includeComponent('Creation/CreationImage'); ?>
     <!-- App -->
     <?!= include('src/html/ModalCreation/App'); ?>
   </body>
