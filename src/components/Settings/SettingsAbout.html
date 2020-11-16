@@ -68,8 +68,19 @@
     data: function () {
       return {
         links: [
-          { title: 'GitHub', icon: 'fab fa-github', href: 'https://github.com/alessandrojean/toshokan'},
-          { title: 'Vue.js', icon: 'fab fa-vuejs', href: 'https://vuejs.org' }
+          { 
+            title: 'GitHub', 
+            icon: 'fab fa-github', 
+            href: 'https://github.com/alessandrojean/toshokan'
+          }, { 
+            title: 'Vue.js',
+            icon: 'fab fa-vuejs',
+            href: 'https://vuejs.org'
+          }, {
+            title: 'Font Awesome',
+            icon: 'fab fa-font-awesome',
+            href: 'https://fontawesome.com/'
+          }
         ],
         markdown: marked(ABOUT, { renderer })
       }

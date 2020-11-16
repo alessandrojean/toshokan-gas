@@ -3,6 +3,7 @@ function displaySettingsModal() {
   
   const htmlTemplate = HtmlService.createTemplateFromFile('src/html/ModalSettings/Modal')
   htmlTemplate.properties = Utils.getAppProperties()
+  htmlTemplate.updater = UpdaterService.getAppInfo()
   
   const html = htmlTemplate.evaluate()
     .setWidth(1000)

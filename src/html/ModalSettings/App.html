@@ -16,25 +16,26 @@
           key: 'general',
           title: 'Geral',
           subitems: [
-            { key: 'behavior', title: 'Comportamento' }
+            { key: 'behavior', title: 'Comportamento', icon: 'fas fa-brain' }
           ]
         }, {
           key: 'services',
           title: 'Serviços',
           subitems: [
-            { key: 'cbl', title: 'CBL' }
+            { key: 'cbl', title: 'CBL', icon: 'fas fa-atlas' }
           ]
         }, {
           key: 'bottom',
           bottom: true,
           subitems: [
-            { key: 'about', title: 'Sobre' }
+            { key: 'about', title: 'Sobre', icon: 'fas fa-info-circle' }
           ]
         }
       ]
     }),
     computed: {
-      ...Vuex.mapGetters('settings/modal', { menuItemActive: 'activeItem' })
+      ...Vuex.mapGetters('settings/modal', { menuItemActive: 'activeItem' }),
+      ...Vuex.mapGetters('settings/updater', ['appVersion'])
     },
     methods: {
       handleCancelClick: function () {

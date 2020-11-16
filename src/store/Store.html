@@ -2,6 +2,7 @@
   const propertiesJson = document.querySelector('#properties-json')
   const bookJson = document.querySelector('#book-json')
   const datalistsJson = document.querySelector('#datalists-json')
+  const updaterJson = document.querySelector('#updater-json')
 
   const INITIAL_BOOK = {
     isbn: '',
@@ -541,6 +542,21 @@
         mutations: {
           updateActiveItem: function (state, payload) {
             state.activeItem = payload.activeItem
+          }
+        }
+      },
+      updater: {
+        namespaced: true,
+        state: function () {
+          if (updaterJson) {
+            return { ...JSON.parse(updaterJson.textContent) }
+          }
+
+          return {}
+        },
+        getters: {
+          appVersion: function (state) {
+            return 'v' + state.version
           }
         }
       }

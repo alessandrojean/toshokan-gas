@@ -34,6 +34,11 @@
             <div class="level" id="control-buttons">
               <div class="level-left"></div>
               <div class="level-right">
+                <div class="level-item" v-if="menuItemActive === 'about'">
+                  <p class="is-size-7">
+                    {{ appVersion }}
+                  </p>
+                </div>
                 <div class="level-item">
                   <button
                     type="button"
@@ -83,6 +88,8 @@
     
     <!-- JS Dependencies -->
     <?!= includeJsDependencies(); ?>
+    <!-- Updater -->
+    <?!= includeJson('updater', updater); ?>
     <!-- Properties -->
     <?!= includeJson('properties', properties); ?>
     <!-- Store -->
