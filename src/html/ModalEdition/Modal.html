@@ -24,50 +24,32 @@
         @submit.prevent="handleFormSubmit"
       >
         <edition-header
-          :pagination="book.pagination"
-          :row="book.row"
           @tab-change="handleTabChange"
-          @pagination-change="handlePaginationChange"
-          v-if="!errorMessage.length">
+          v-if="!hasError">
         </edition-header>
 
         <article
           class="message is-danger"
-          :class="{ 'is-hidden': !errorMessage.length }"
+          :class="{ 'is-hidden': !hasError }"
         >
           <div class="message-header">
             <p>Ops! Um erro aconteceu</p>
           </div>
           <div class="message-body">
-            {{ errorMessage }}
+            {{ error }}
           </div>
         </article>
 
-        <edition-panel
-          :book="book"
-          :fetching-cover="fetchingCover"
-          @image-load="handleCoverLoaded"
-          @image-error="handleCoverError"
-          v-if="!errorMessage.length">
-        </edition-panel>
+        <edition-panel v-if="!hasError"></edition-panel>
 
-        <main class="tab-content-wrapper" v-if="!errorMessage.length">
+        <main class="tab-content-wrapper" v-if="!hasError">
           <edition-record
-            :book="book"
-            :class="{ 'is-hidden': activeTab !== 0 }"
-            @validate="updateValidation"
-            ref="editionRecord">
+            :class="{ 'is-hidden': activeTab !== 0 }">
           </edition-record>
           <edition-image
-            :cover-url.sync="book.coverUrl"
-            :cover-error="coverError"
-            :fetching-cover="fetchingCover"
-            @fetch:click="handleFetchCoverClick"
-            :class="{ 'is-hidden': activeTab !== 1 }"
-            ref="editionImage">
+            :class="{ 'is-hidden': activeTab !== 1 }">
           </edition-image>
           <edition-debugger
-            :book="book"
             :class="{ 'is-hidden': activeTab !== 2 }">
           </edition-debugger>
         </main>
@@ -76,7 +58,7 @@
         <section
           class="level is-bottom-level"
           id="control-buttons"
-          v-if="!errorMessage.length"
+          v-if="!hasError"
         >
           <div class="level-left">
             <div class="level-item">
@@ -112,7 +94,7 @@
                 type="submit"
                 class="button is-link"
                 id="submit-button"
-                :disabled="formIsInvalid"
+                :disabled="validation.record.invalid"
               >
                 <span class="icon">
                   <i class="fas fa-save"></i>
@@ -141,10 +123,10 @@
     <script type="application/json" id="book-json">
       <?!= JSON.stringify(book) ?>
     </script>
-    <script>
+    <!-- <script>
       const bookJson = document.querySelector('#book-json')
       const BOOK = JSON.parse(bookJson.textContent)
-    </script>
+    </script> -->
     <!-- Datalists -->
     <script type="application/json" id="datalists-json">
       <?!= JSON.stringify(entityUniqueProperties) ?>

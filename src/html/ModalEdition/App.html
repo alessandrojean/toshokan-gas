@@ -14,81 +14,82 @@
     data: function () {
       return {
         activeTab: 0,
-        book: BOOK,
-        row: BOOK.row,
-        errorMessage: '',
-        coverError: '',
-        isLoading: false,
-        updatedAt: '',
-        formIsInvalid: false,
-        fetchingCover: false
+        // book: BOOK,
+        // row: BOOK.row,
+        // errorMessage: '',
+        // coverError: '',
+        // isLoading: false,
+        // updatedAt: '',
+        // formIsInvalid: false,
+        // fetchingCover: false
       }
     },
+    computed: {
+      ...Vuex.mapState('edition/modal', [
+        'error', 
+        'isLoading',
+        'updatedAt',
+        'validation'
+      ]),
+      ...Vuex.mapGetters('edition/modal', ['hasError']),
+      ...Vuex.mapState('book', {
+        bookRow: 'row',
+        bookId: 'id'
+      })
+    },
     methods: {
-      fetchCover: function (book) {
-        if (book.coverUrl && book.coverUrl.length) {
-          return
-        }
+      // fetchItem: function () {
+      //   this.isLoading = true
 
-        this.fetchingCover = true
-
-        google.script.run
-          .withSuccessHandler(this.handleFetchCoverSuccess.bind(this))
-          .withFailureHandler(this.handleFetchCoverFailure.bind(this))
-          .findCover(book)
-      },
-      fetchItem: function () {
-        this.isLoading = true
-
-        google.script.run
-          .withSuccessHandler(this.handleFetchItemSuccess.bind(this))
-          .withFailureHandler(this.showError.bind(this))
-          .findBookByRow(this.row)
-      },
+      //   google.script.run
+      //     .withSuccessHandler(this.handleFetchItemSuccess.bind(this))
+      //     .withFailureHandler(this.showError.bind(this))
+      //     .findBookByRow(this.row)
+      // },
       handleCancelClick: function () {
         google.script.host.close()
       },
-      handleCoverError: function (error) {
-        this.coverError = error
-      },
-      handleCoverLoaded: function () {
-        this.coverError = ''
-      },
-      handleFetchCoverClick: function () {
-        if (!this.fetchingCover) {
-          this.fetchCover(this.$refs.editionRecord.internBook)
-        }
-      },
-      handleFetchCoverFailure: function (error) {
-        this.$set(this.book, 'coverUrl', '')
-        this.fetchingCover = false
-        this.coverError = error.message || error
-      },
-      handleFetchCoverSuccess: function (coverUrl) {
-        this.$set(this.book, 'coverUrl', coverUrl)
-        this.fetchingCover = false
-        this.coverError = ''
-      },
-      handleFetchItemSuccess: function (book) {
-        this.isLoading = false
-        this.updatedAt = ''
-        this.coverError = ''
-        this.book = Object.assign({}, this.book, book, {
-          size: { ...book.size },
-          price: { ...book.price },
-          coverUrl: book.coverUrl || ''
-        })
-        this.row = book.row
+      // handleCoverError: function (error) {
+      //   this.coverError = error
+      // },
+      // handleCoverLoaded: function () {
+      //   this.coverError = ''
+      // },
+      // handleFetchCoverClick: function () {
+      //   if (!this.fetchingCover) {
+      //     this.fetchCover(this.$refs.editionRecord.internBook)
+      //   }
+      // },
+      // handleFetchCoverFailure: function (error) {
+      //   this.$set(this.book, 'coverUrl', '')
+      //   this.fetchingCover = false
+      //   this.coverError = error.message || error
+      // },
+      // handleFetchCoverSuccess: function (coverUrl) {
+      //   this.$set(this.book, 'coverUrl', coverUrl)
+      //   this.fetchingCover = false
+      //   this.coverError = ''
+      // },
+      // handleFetchItemSuccess: function (book) {
+      //   this.isLoading = false
+      //   this.updatedAt = ''
+      //   this.coverError = ''
+      //   this.book = Object.assign({}, this.book, book, {
+      //     size: { ...book.size },
+      //     price: { ...book.price },
+      //     coverUrl: book.coverUrl || ''
+      //   })
+      //   this.row = book.row
         
-        this.fetchCover(this.book)
-      },
+      //   this.fetchCover(this.book)
+      // },
       handleFormSubmit: function (event) {
-        if (this.formIsInvalid) {
+        if (this.validation.record.invalid) {
           return
         }
 
-        this.isLoading = true
-        const bookData = this.$refs.editionRecord.internBook
+        this.updateLoading(true)
+        const bookData = this.$store.state.book
         const date = bookData.date8601
         
         const rowData = [
@@ -105,46 +106,52 @@
 
         const additional = {
           id: bookData.id,
-          coverUrl: this.book.coverUrl
+          coverUrl: bookData.coverUrl
         }
 
         google.script.run
           .withSuccessHandler(this.handleFormSubmitSuccess.bind(this))
           .withFailureHandler(this.showError.bind(this))
-          .updateEntryRow(bookData.row, rowData, additional)
+          .updateEntryRow(this.bookRow, rowData, additional)
       },
       handleFormSubmitSuccess: function () {
-        this.isLoading = false
-        this.updatedAt = new Date().toLocaleTimeString('pt-BR')
+        this.updateLoading(false)
+        this.updateUpdatedAt(new Date().toLocaleTimeString('pt-BR'))
       },
       handleDeleteClick: function () {
-        this.isLoading = true
+        this.updateLoading(true)
 
         google.script.run
           .withSuccessHandler(this.handleDeleteSuccess.bind(this))
           .withFailureHandler(this.showError.bind(this))
-          .deleteEntryRow(this.book.row, this.book.id)
+          .deleteEntryRow(this.bookRow, this.bookId)
       },
       handleDeleteSuccess: function () {
         google.script.host.close()
       },
-      handlePaginationChange: function (row) {
-        this.row = row
-        this.fetchItem()
-      },
+      // handlePaginationChange: function (row) {
+      //   this.row = row
+      //   this.fetchItem()
+      // },
       handleTabChange: function (index) {
         this.activeTab = index
       },
       showError: function (error) {
-        this.isLoading = false
-        this.errorMessage = error.message || error
+        this.updateLoading(false)
+        this.updateError(error.message || error)
       },
-      updateValidation: function (isInvalid) {
-        this.formIsInvalid = isInvalid
-      }
+      // updateValidation: function (isInvalid) {
+      //   this.formIsInvalid = isInvalid
+      // },
+      ...Vuex.mapActions('book', ['fetchCover']),
+      ...Vuex.mapMutations('edition/modal', [
+        'updateLoading',
+        'updateUpdatedAt',
+        'updateError'
+      ])
     },
     mounted: function () {
-      this.fetchCover(this.book)
+      this.fetchCover()
     }
   })
 </script>

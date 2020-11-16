@@ -8,7 +8,7 @@
           class="input is-tabular"
           type="text"
           name="isbn"
-          v-model="internBook.isbn"
+          :value="isbn"
           readonly
         >
       </div>
@@ -23,15 +23,16 @@
           type="text"
           placeholder="ex. A Nova Ilha do Tesouro"
           name="title"
-          v-model="internBook.title"
           required
-          :class="{ 'is-danger': $v.internBook.title.$invalid }"
+          :value="title"
+          :class="{ 'is-danger': $v.title.$invalid }"
+          @input="updateTitle"
         >
       </div>
       <p
         class="help is-danger"
         id="help-danger-title"
-        v-if="$v.internBook.title.$invalid"
+        v-if="$v.title.$invalid"
       >
         O campo do título é obrigatório, mas está vazio.
       </p>
@@ -48,22 +49,23 @@
               type="text"
               placeholder="ex. Osamu Tezuka"
               name="authors"
-              v-model="internBook.authors"
               required
-              :class="{ 'is-danger': $v.internBook.authors.$invalid }"
+              :value="authors"
+              :class="{ 'is-danger': $v.authors.$invalid }"
+              @input="updateAuthors"
             >
           </div>
           <p
             class="help"
             id="help-authors"
-            v-if="!$v.internBook.authors.$invalid"
+            v-if="!$v.authors.$invalid"
           >
             Separe os autores utilizando um ponto e vírgula.
           </p>
           <p
             class="help is-danger"
             id="help-danger-authors"
-            v-if="$v.internBook.authors.$invalid"
+            v-if="$v.authors.$invalid"
           >
             O campo dos autores é obrigatório, mas está vazio.
           </p>
@@ -78,10 +80,11 @@
               type="text"
               placeholder="ex. NewPOP"
               name="imprint"
-              v-model="internBook.imprint"
               list="imprint-list"
               required
-              :class="{ 'is-danger': $v.internBook.imprint.$invalid }"
+              :value="imprint"
+              :class="{ 'is-danger': $v.imprint.$invalid }"
+              @input="updateImprint"
             >
             <datalist id="imprint-list">
               <option
@@ -95,7 +98,7 @@
           <p
             class="help is-danger"
             id="help-danger-imprint"
-            v-if="$v.internBook.imprint.$invalid"
+            v-if="$v.imprint.$invalid"
           >
             O campo da editora é obrigatório, mas está vazio.
           </p>
@@ -115,9 +118,10 @@
                 type="text"
                 placeholder="ex. 15,0"
                 name="size-width"
-                v-model="internBook.size.width"
                 required
-                :class="{ 'is-danger': $v.internBook.size.width.$invalid }"
+                :value="size.width"
+                :class="{ 'is-danger': $v.size.width.$invalid }"
+                @input="updateSizeWidth"
               >
             </div>
             <div class="control">
@@ -129,9 +133,10 @@
                 type="text"
                 placeholder="ex. 21,0"
                 name="size-height"
-                v-model="internBook.size.height"
                 required
-                :class="{ 'is-danger': $v.internBook.size.height.$invalid }"
+                :value="size.height"
+                :class="{ 'is-danger': $v.size.height.$invalid }"
+                @input="updateSizeHeight"
               >
             </div>
             <div class="control">
@@ -141,7 +146,7 @@
           <p 
             class="help is-danger"
             id="help-danger-size"
-            v-if="$v.internBook.size.$invalid"
+            v-if="$v.size.$invalid"
           >
             O formato deve ser um número válido.
           </p>
@@ -155,12 +160,15 @@
               <span class="select">
                 <select
                   name="price-currency"
-                  v-model="internBook.price.currency"
+                  v-model="priceCurrency"
                 >
-                  <option value="R$">R$</option>
-                  <option value="US$">US$</option>
-                  <option value="€">€</option>
-                  <option value="¥">¥</option>
+                  <option
+                    v-for="(currency, index) of currencies"
+                    :key="index"
+                    :value="currency"
+                  >
+                    {{ currency }}
+                  </option>
                 </select>
               </span>
             </div>
@@ -170,16 +178,17 @@
                 type="text"
                 placeholder="ex. 26,90"
                 name="price-value"
-                v-model="internBook.price.value"
                 required
-                :class="{ 'is-danger': $v.internBook.price.value.$invalid }"
+                :value="price.value"
+                :class="{ 'is-danger': $v.price.value.$invalid }"
+                @input="updatePriceValue"
               >
             </div>
           </div>
           <p
             class="help is-danger"
             id="help-danger-price"
-            v-if="$v.internBook.price.$invalid"
+            v-if="$v.price.$invalid"
           >
             O preço deve ser um número válido.
           </p>
@@ -198,8 +207,10 @@
               type="text"
               placeholder="ex. Presente"
               name="store"
-              v-model="internBook.store"
               list="store-list"
+              :value="store"
+              :class="{ 'is-danger': $v.store.$invalid }"
+              @input="updateStore"
             >
             <datalist id="store-list">
               <option
@@ -210,6 +221,13 @@
               </option>
             </datalist>
           </div>
+          <p 
+            class="help is-danger"
+            id="help-danger-size"
+            v-if="$v.store.$invalid"
+          >
+            O campo da loja é obrigatório, mas está vazio.
+          </p>
         </div>
       </div>
       <div class="column is-one-third">
@@ -221,7 +239,8 @@
               type="date"
               placeholder="ex. 04/03/2020"
               name="date"
-              v-model="internBook.date8601"
+              :value="date8601"
+              @change="updateDate"
             >
           </div>
         </div>
@@ -231,7 +250,7 @@
           <label class="label">Estado</label>
           <div class="control is-expanded">
             <span class="select">
-              <select name="status" v-model="internBook.status">
+              <select name="status" v-model="status">
                 <option value="Lido">Lido</option>
                 <option value="Não lido">Não lido</option>
               </select>
@@ -254,41 +273,103 @@
   const EditionRecord = {
     template: '#edition-record-template',
     name: 'EditionRecord',
-    props: {
-      book: Object
-    },
     data: function () {
       return {
         datalists: DATALISTS,
-        internBook: this.book
+        currencies: ['R$', 'US$', '€', '¥']
       }
+    },
+    computed: {
+      priceCurrency: {
+        get: function () {
+          return this.$store.state.book.price.currency
+        },
+        set: function (currency) {
+          this.$store.commit('book/updatePrice', { currency })
+        }
+      },
+      status: {
+        get: function () {
+          return this.$store.state.book.status
+        },
+        set: function (status) {
+          this.$store.commit('book/updateStatus', status)
+        }
+      },
+      ...Vuex.mapState('book', [
+        'isbn',
+        'title',
+        'authors',
+        'imprint',
+        'size',
+        'price',
+        'store',
+        'date8601'
+      ])
+    },
+    methods: {
+      updateTitle: function (e) {
+        this.$store.commit('book/updateTitle', e.target.value)
+        this.$v.title.$touch()
+      },
+      updateAuthors: function (e) {
+        this.$store.commit('book/updateAuthors', e.target.value)
+        this.$v.authors.$touch()
+      },
+      updateImprint: function (e) {
+        this.$store.commit('book/updateImprint', e.target.value)
+        this.$v.imprint.$touch()
+      },
+      updateSizeWidth: function (e) {
+        this.$store.commit('book/updateSize', { width: e.target.value })
+        this.$v.size.width.$touch()
+      },
+      updateSizeHeight: function (e) {
+        this.$store.commit('book/updateSize', { height: e.target.value })
+        this.$v.size.height.$touch()
+      },
+      updatePriceValue: function (e) {
+        this.$store.commit('book/updatePrice', { value: e.target.value })
+        this.$v.price.value.$touch()
+      },
+      updateStore: function (e) {
+        this.$store.commit('book/updateStore', e.target.value)
+        this.$v.store.$touch()
+      },
+      updateDate: function (e) {
+        this.$store.commit('book/updateDate', e.target.value)
+      },
+      ...Vuex.mapMutations('edition/modal', ['updateValidation'])
     },
     validations: {
-      internBook: {
-        title: { required },
-        authors: { required },
-        imprint: { required },
-        size: {
-          width: { required, decimalComma: decimalComma(1) },
-          height: { required, decimalComma: decimalComma(1) }
-        },
-        price: {
-          value: { required, decimalComma: decimalComma(2) }
-        }
-      }
+      title: { required },
+      authors: { required },
+      imprint: { required },
+      size: {
+        width: { required, decimalComma: decimalComma(1) },
+        height: { required, decimalComma: decimalComma(1) }
+      },
+      price: {
+        value: { required, decimalComma: decimalComma(2) }
+      },
+      store: { required }
     },
     watch: {
-      'book': function (newValue) {
-        this.internBook = Object.assign({}, this.internBook, newValue, {
-          size: { ...newValue.size },
-          price: { ...newValue.price }
+      // 'book': function (newValue) {
+      //   this.internBook = Object.assign({}, this.internBook, newValue, {
+      //     size: { ...newValue.size },
+      //     price: { ...newValue.price }
+      //   })
+      // },
+      // 'internBook.title': function (newValue) {
+      //   this.internBook.titleParts = newValue.split(/\s+#(\d+)(?:\:\s+)?/)
+      // },
+      '$v.$invalid': function (isInvalid) {
+        // this.$emit('validate', isInvalid)
+        this.updateValidation({ 
+          key: 'record',
+          status: { invalid: isInvalid } 
         })
-      },
-      'internBook.title': function (newValue) {
-        this.internBook.titleParts = newValue.split(/\s+#(\d+)(?:\:\s+)?/)
-      },
-      '$v.internBook.$invalid': function (isInvalid) {
-        this.$emit('validate', isInvalid)
       }
     }
   }

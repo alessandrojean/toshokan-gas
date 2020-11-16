@@ -10,12 +10,10 @@
   const EditionDebugger = {
     template: '#edition-debugger-template',
     name: 'EditionDebugger',
-    props: {
-      book: Object
-    },
     computed: {
       bookJson: function () {
-        return JSON.stringify(this.book, null, 2)
+        const book = this.$store.state.book
+        return JSON.stringify(book, null, 2)
       }
     }
   }

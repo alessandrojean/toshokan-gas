@@ -4,20 +4,20 @@
       <div class="panel-block" id="book-image">
         <figure
           class="image is-2by3"
-          :class="{ 'is-danger': imageErrorMessage.length }"
+          :class="{ 'is-danger': coverHasError }"
         >
           <div
             class="loader-wrapper"
-            :class="{ 'is-active': fetchingCover || imageIsLoading }"
+            :class="{ 'is-active': coverIsFetching || coverIsLoading }"
           >
             <div class="loader is-loading"></div>
           </div>
           <img :src="imageUrl" ref="image">
           <span
             class="tag is-dark is-image-resolution"
-            v-if="showImageResolution"
+            v-if="showCoverResolution"
           >
-            {{ imageResolution }}
+            {{ coverResolution }}
           </span>
         </figure>
       </div>
@@ -26,10 +26,10 @@
           <i class="fas fa-fingerprint" aria-hidden="true"></i>
         </span>
         <span id="panel-isbn" class="is-tabular">
-          {{ book.isbn }}
+          {{ bookIsbn }}
         </span>
         <span id="panel-isbn-type" class="tag">
-          {{ book.isbnType }}
+          {{ bookIsbnType }}
         </span>
       </p>
       <p class="panel-block">
@@ -37,14 +37,14 @@
           <i class="fas fa-book" aria-hidden="true"></i>
         </span>
         <span id="panel-title">
-          {{ book.titleParts[0] }}
+          {{ bookTitleParts[0] }}
         </span>
         <span
           id="panel-title-number"
           class="tag"
-          v-if="book.titleParts[1]"
+          v-if="bookTitleParts[1]"
         >
-          #{{ book.titleParts[1] }}
+          #{{ bookTitleParts[1] }}
         </span>
       </p>
     </div>
@@ -52,94 +52,111 @@
 </script>
 
 <script id="edition-panel-script">
-  const PLACEHOLDER = 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa'
-
-  const EditionPanel = {
+ const EditionPanel = {
     template: '#edition-panel-template',
     name: 'EditionPanel',
-    props: {
-      book: Object,
-      fetchingCover: Boolean
-    },
     data: function () {
       return {
-        imageUrl: PLACEHOLDER,
-        imageErrorMessage: '',
-        imageIsLoading: true,
-        imageResolution: '',
-        loadingUrl: PLACEHOLDER
+        imageUrl: ''
       }
     },
     computed: {
-      coverUrl: {
-        get: function () {
-          if (this.imageUrl === PLACEHOLDER) {
-            return PLACEHOLDER
-          }
-
-          return (this.imageUrl && this.imageUrl.length)
-            ? this.imageUrl : PLACEHOLDER
-        },
-        set: function (newValue) {
-          this.imageUrl = newValue
-        }
-      },
-      showImageResolution: function () {
+      showCoverResolution: function () {
         const conditions = [
           this.showDebugTools,
-          !this.imageIsLoading,
-          !this.fetchingCover,
-          this.imageUrl !== PLACEHOLDER,
-          this.imageResolution.length > 0
+          !this.coverIsLoading,
+          !this.coverIsFetching,
+          this.imageUrl !== this.coverPlaceholder,
+          this.coverResolution.length > 0
         ]
 
         return conditions.every(b => b)
       },
-      ...Vuex.mapGetters('settings/properties', ['showDebugTools'])
+      ...Vuex.mapGetters('settings/properties', ['showDebugTools']),
+      ...Vuex.mapGetters('book', [
+        'bookIsbn',
+        'bookIsbnType',
+        'bookTitleParts'
+      ]),
+      ...Vuex.mapGetters('edition/cover', [
+        'coverHasError',
+        'coverIsFetching',
+        'coverIsLoading',
+        'coverLoadingUrl',
+        'coverPlaceholder',
+        'coverResolution'
+      ]),
+      ...Vuex.mapState('book', { bookCoverUrl: 'coverUrl' })
     },
     methods: {
       handleImageError: function (error) {
-        this.imageUrl = PLACEHOLDER
-        this.imageErrorMessage = 'Imagem não encontrada.'
-        this.imageIsLoading = false
-        this.imageResolution = ''
-        this.$emit('image-error', 'Imagem não encontrada.')
+        this.imageUrl = this.coverPlaceholder
+        this.updateCoverLoadingUrl('')
+        this.updateCoverError('Imagem não encontrada.')
+        this.updateCoverLoading(false)
+        this.updateCoverResolution('')
+        // this.$emit('image-error', 'Imagem não encontrada.')
       },
       handleImageLoaded: function (image) {
-        this.imageUrl = this.loadingUrl
-        this.imageErrorMessage = ''
-        this.imageIsLoading = false
-        this.$emit('image-load')
-
-        this.imageResolution = image.naturalWidth + 'x' + image.naturalHeight
+        this.imageUrl = this.coverLoadingUrl
+        this.updateCoverUrl(this.imageUrl)
+        this.updateCoverError('')
+        this.updateCoverLoading(false)
+        this.updateCoverResolution(image.naturalWidth + 'x' + image.naturalHeight)
+        // this.$emit('image-load')
+        // this.imageResolution = image.naturalWidth + 'x' + image.naturalHeight
       },
       loadImage: function () {
-        this.imageIsLoading = true
+        this.updateCoverLoading(true)
 
         const image = new Image()
         image.onload = this.handleImageLoaded.bind(this, image)
         image.onerror = this.handleImageError.bind(this)
-        image.src = this.loadingUrl
-      }
+        image.src = this.coverLoadingUrl
+      },
+      ...Vuex.mapMutations('edition/cover', [
+        'updateCoverError',
+        'updateCoverLoading',
+        'updateCoverLoadingUrl',
+        'updateCoverResolution'
+      ]),
+      ...Vuex.mapMutations('book', ['updateCoverUrl'])
     },
     watch: {
-      'book.coverUrl': function (newValue) {
+      bookCoverUrl: function (newValue) {
         if (newValue === '') {
-          this.imageUrl = PLACEHOLDER
-          this.loadingUrl = PLACEHOLDER
-          this.imageIsLoading = false
-          this.imageResolution = ''
+          this.imageUrl = this.coverPlaceholder
+          this.updateCoverLoadingUrl(this.coverPlaceholder)
+          this.updateCoverLoading(false)
+          this.updateCoverResolution('')
           return
         }
 
-        this.imageUrl = PLACEHOLDER
-        this.loadingUrl = newValue
+        this.imageUrl = this.coverPlaceholder
+        this.updateCoverLoadingUrl(newValue)
         this.loadImage()
-      }
+      },
+      // 'book.coverUrl': function (newValue) {
+      //   if (newValue === '') {
+      //     this.imageUrl = PLACEHOLDER
+      //     this.loadingUrl = PLACEHOLDER
+      //     this.imageIsLoading = false
+      //     this.imageResolution = ''
+      //     return
+      //   }
+
+      //   this.imageUrl = PLACEHOLDER
+      //   this.loadingUrl = newValue
+      //   this.loadImage()
+      // }
     },
     mounted: function () {
-      this.loadingUrl = this.book.coverUrl && this.book.coverUrl.length
-        ? this.book.coverUrl : PLACEHOLDER
+      this.imageUrl = this.coverPlaceholder
+
+      const loadingUrl = this.bookCoverUrl && this.bookCoverUrl.length
+        ? this.bookCoverUrl : this.coverPlaceholder
+
+      this.updateCoverLoadingUrl(loadingUrl)
       this.loadImage()
     }
   }

@@ -66,29 +66,29 @@
         ]
       }
     },
-    props: {
-      pagination: Object,
-      row: Number
-    },
     computed: {
       tabItemsToShow: function () {
         return this.tabItems.filter(t => {
           return !t.debug || this.showDebugTools
         })
       },
-      ...Vuex.mapGetters('settings/properties', ['showDebugTools'])
+      ...Vuex.mapGetters('settings/properties', ['showDebugTools']),
+      ...Vuex.mapGetters('book', ['pagination', 'row'])
     },
     methods: {
       handleNextClick: function () {
-        this.$emit('pagination-change', this.row + 1)
+        // this.$emit('pagination-change', this.row + 1)
+        this.fetchNextBook()
       },
       handlePreviousClick: function () {
-        this.$emit('pagination-change', this.row - 1)
+        // this.$emit('pagination-change', this.row - 1)
+        this.fetchPreviousBook()
       },
       handleTabClick: function (index) {
         this.activeTab = index
         this.$emit('tab-change', index)
-      }
+      },
+      ...Vuex.mapActions('book', ['fetchNextBook', 'fetchPreviousBook'])
     }
   }
 </script>

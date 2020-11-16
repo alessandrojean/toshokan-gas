@@ -1,5 +1,268 @@
 <script id="settings-store-script">
   const propertiesJson = document.querySelector('#properties-json')
+  const bookJson = document.querySelector('#book-json')
+
+  const INITIAL_BOOK = {
+    isbn: '',
+    title: '',
+    authors: '',
+    imprint: '',
+    size: {
+      width: '',
+      height: ''
+    },
+    price: {
+      currency: 'R$',
+      value: ''
+    },
+    store: '',
+    date: '',
+    date8601: '',
+    status: 'Lido',
+    coverUrl: '',
+    id: '',
+    titleParts: [],
+    isbnType: '',
+    row: 0,
+    pagination: {
+      hasPrevious: false,
+      hasNext: false,
+      current: 0,
+      last: 0
+    }
+  }
+
+  const bookModule = {
+    namespaced: true,
+    state: function () {
+      if (bookJson) {
+        return { ...INITIAL_BOOK, ...JSON.parse(bookJson.textContent) }
+      }
+
+      return INITIAL_BOOK
+    },
+    getters: {
+      bookCoverUrl: function (state) {
+        return state.coverUrl
+      },
+      bookIsbn: function (state) {
+        return state.isbn
+      },
+      bookIsbnType: function (state) {
+        return state.isbnType
+      },
+      bookTitle: function (state) {
+        return state.title
+      },
+      bookTitleParts: function (state) {
+        return state.titleParts
+      },
+      pagination: function (state) {
+        return state.pagination
+      },
+      row: function (state) {
+        return state.row
+      }
+    },
+    mutations: {
+      updateBook: function (state, book) {
+        Object.entries(INITIAL_BOOK)
+          .forEach(([key, value]) => {
+            if (typeof value === 'object') {
+              state[key] = { ...value, ...book[key] }
+            } else {
+              state[key] = book[key] || value
+            }
+          })
+      },
+      updateIsbn: function (state, isbn) {
+        if (!isbn.match(/^[0-9]{13}$|^[0-9]{9}[0-9xX]{1}$/)) {
+          state.isbn = isbn
+          return
+        }
+
+        const replacements = {
+          10: [/(\d{2})(\d{4})(\d{3})([\dxX]{1})/, '$1-$2-$3-$4'],
+          13: [/(\d{3})(\d{2})(\d{4})(\d{3})(\d)/, '$1-$2-$3-$4-$5']
+        }
+
+        state.isbn = isbn.replace.apply(isbn, replacements[isbn.length])
+      },
+      updateTitle: function (state, title) {
+        state.title = title
+        state.titleParts = title.split(/\s+#(\d+)(?:\:\s+)?/)
+      },
+      updateAuthors: function (state, authors) {
+        state.authors = authors
+      },
+      updateImprint: function (state, imprint) {
+        state.imprint = imprint
+      },
+      updateSize: function (state, payload) {
+        state.size = { ...state.size, ...payload }
+      },
+      updatePrice: function (state, payload) {
+        state.price = { ...state.price, ...payload }
+      },
+      updateCoverUrl: function (state, coverUrl) {
+        if (coverUrl.match(/\/(?!(i0|i1)\.wp\.com.*).*\/wp-content\/.*-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i)) {
+          state.coverUrl = coverUrl.replace(/-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i, '.$1')
+          return
+        }
+
+        state.coverUrl = coverUrl
+      },
+      updateStore: function (state, store) {
+        state.store = store
+      },
+      updateDate: function (state, date8601) {
+        state.date8601 = date8601
+        state.date = date8601.split('-').reverse().join('/')
+      },
+      updateStatus: function (state, status) {
+        state.status = status
+      }
+    },
+    actions: {
+      fetchCover: function ({ state, commit }) {
+        if (state.coverUrl && state.coverUrl.length) {
+          return
+        }
+
+        commit('edition/cover/updateCoverFetching', true, { root: true })
+
+        google.script.run
+          .withSuccessHandler(coverUrl => {
+            commit('updateCoverUrl', coverUrl)
+            commit('edition/cover/updateCoverFetching', false, { root: true })
+            commit('edition/cover/updateCoverError', '', { root: true })
+          })
+          .withFailureHandler(error => {
+            commit('updateCoverUrl', '')
+            commit('edition/cover/updateCoverFetching', false, { root: true })
+            commit('edition/cover/updateCoverError', error.message || error, { root: true })
+          })
+          .findCover(state)
+      },
+      fetchNextBook: function ({ state, dispatch }) {
+        dispatch('fetchBook', state.row + 1)
+      },
+      fetchPreviousBook: function (context) {
+        dispatch('fetchBook', statw.row - 1)
+      },
+      fetchBook: function ({ state, commit, dispatch }, row) {
+        commit('edition/modal/updateLoading', true, { root: true })
+
+        google.script.run
+          .withSuccessHandler(book => {
+            commit('edition/modal/updateLoading', false, { root: true })
+            commit('edition/modal/updateUpdatedAt', '', { root: true })
+            commit('edition/cover/updateCoverError', '', { root: true })
+            commit('updateBook', book)
+            dispatch('fetchCover')
+          })
+          .withFailureHandler(error => {
+            commit('edition/modal/updateLoading', false, { root: true })
+            commit('edition/modal/updateError', error.message || error, { root: true })
+          })
+          .findBookByRow(row)
+      }
+    }
+  }
+
+  const editionModule = {
+    namespaced: true,
+    modules: {
+      cover: {
+        namespaced: true,
+        state: {
+          error: '',
+          isFetching: false,
+          isLoading: false,
+          loadingUrl: '',
+          resolution: '',
+          placeholder: 'https://via.placeholder.com/320x480/f0f0f0?text=Imagem%20de%20Capa',
+        },
+        getters: {
+          coverIsFetching: function (state) {
+            return state.isFetching
+          },
+          coverIsLoading: function (state) {
+            return state.isLoading
+          },
+          coverError: function (state) {
+            return state.error
+          },
+          coverHasError: function (state) {
+            return state.error.length > 0
+          },
+          coverLoadingUrl: function (state) {
+            return state.loadingUrl
+          },
+          coverPlaceholder: function (state) {
+            return state.placeholder
+          },
+          coverResolution: function (state) {
+            return state.resolution
+          }
+        },
+        mutations: {
+          resetCoverError: function (state) {
+            state.error = ''
+          },
+          updateCoverError: function (state, error) {
+            state.error = error
+          },
+          updateCoverFetching: function (state, isFetching) {
+            state.isFetching = isFetching
+          },
+          updateCoverLoading: function (state, isLoading) {
+            state.isLoading = isLoading
+          },
+          updateCoverLoadingUrl: function (state, loadingUrl) {
+            state.loadingUrl = loadingUrl
+          },
+          updateCoverResolution: function (state, resolution) {
+            state.resolution = resolution
+          }
+        }
+      },
+      modal: {
+        namespaced: true,
+        state: {
+          error: '',
+          isLoading: false,
+          updatedAt: '',
+          validation: {
+            record: { invalid: false },
+            image: { invalid: false }
+          }
+        },
+        getters: {
+          hasError: function (state) {
+            return state.error.length > 0
+          }
+        },
+        mutations: {
+          updateError: function (state, error) {
+            state.error = error
+          },
+          updateLoading: function (state, isLoading) {
+            state.isLoading = isLoading
+          },
+          updateUpdatedAt: function (state, updatedAt) {
+            state.updatedAt = updatedAt
+          },
+          updateValidation: function (state, payload) {
+            state.validation[payload.key] = {
+              ...state.validation[payload.key],
+              ...payload.status
+            }
+          }
+        }
+      }
+    }
+  }
 
   const settingsModule = {
     namespaced: true,
@@ -47,6 +310,8 @@
 
   const store = new Vuex.Store({
     modules: {
+      book: bookModule,
+      edition: editionModule,
       settings: settingsModule
     }
   })

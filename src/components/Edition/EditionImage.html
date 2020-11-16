@@ -9,9 +9,10 @@
             class="input"
             type="text"
             name="cover-url"
-            v-model="internCoverUrl"
-            :class="{ 'is-danger': coverError.length > 0 }"
-            :disabled="fetchingCover"
+            :value="bookCoverUrl"
+            :class="{ 'is-danger': coverHasError }"
+            :disabled="coverIsFetching"
+            @change="updateCoverUrl"
           >
         </div>
         <div class="control">
@@ -19,7 +20,7 @@
             type="button"
             class="button"
             @click="handleFetchClick"
-            :class="{ 'is-loading': fetchingCover }"
+            :class="{ 'is-loading': coverIsFetching }"
           >
             <span class="icon">
               <i class="fas fa-search"></i>
@@ -28,7 +29,7 @@
           </button>
         </div>
       </div>
-      <p class="help is-danger" v-if="coverError.length > 0">
+      <p class="help is-danger" v-if="coverHasError">
         {{ coverError }}
       </p>
     </div>
@@ -39,40 +40,41 @@
   const EditionImage = {
     template: '#edition-image-template',
     name: 'EditionImage',
-    props: {
-      coverUrl: String,
-      coverError: String,
-      fetchingCover: Boolean
-    },
-    data: function () {
-      return {
-        wordpressRegex: /\/(?!(i0|i1)\.wp\.com.*).*\/wp-content\/.*-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i,
-        wordpressReplace: /-\d+x\d+\.(jpg|jpeg|png|gif|webp)$/i
-      }
-    },
     computed: {
-      internCoverUrl: {
-        get: function () {
-          return this.coverUrl
-        },
-        set: function (newValue) {
-          this.$emit('update:coverUrl', this.increaseImageQuality(newValue))
-        }
-      }
+      // internCoverUrl: {
+      //   get: function () {
+      //     return this.coverUrl
+      //   },
+      //   set: function (newValue) {
+      //     this.$emit('update:coverUrl', this.increaseImageQuality(newValue))
+      //   }
+      // },
+      ...Vuex.mapGetters('book', ['bookCoverUrl']),
+      ...Vuex.mapGetters('edition/cover', [
+        'coverError',
+        'coverHasError',
+        'coverIsFetching'
+      ])
     },
     methods: {
       handleFetchClick: function () {
-        if (!this.fetchingCover) {
-          this.$emit('fetch:click')
+        if (!this.coverIsFetching) {
+          // this.$emit('fetch:click')
+          this.fetchCover()
         }
       },
-      increaseImageQuality: function (imageUrl) {
-        if (imageUrl.match(this.wordpressRegex)) {
-          return imageUrl.replace(this.wordpressReplace, '.$1')
-        }
+      // increaseImageQuality: function (imageUrl) {
+      //   if (imageUrl.match(this.wordpressRegex)) {
+      //     return imageUrl.replace(this.wordpressReplace, '.$1')
+      //   }
 
-        return imageUrl
-      }
+      //   return imageUrl
+      // },
+      updateCoverUrl: function (e) {
+        this.$store.commit('book/updateCoverUrl', e.target.value)
+      },
+      // ...Vuex.mapMutations('edition/cover', ['updateCoverFetching']),
+      ...Vuex.mapActions('book', ['fetchCover'])
     }
   }
 </script>
