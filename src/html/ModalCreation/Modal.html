@@ -53,7 +53,27 @@
           >
             <div class="level-left">
               <div class="level-item">
-                <div class="buttons has-addons">
+                <nav class="pagination" role="navigation" aria-label="pagination">
+                  <a
+                    class="pagination-previous"
+                    :disabled="paginationPreviousDisabled"
+                    @click="handlePaginationPrevious"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-chevron-left"></i>
+                    </span>
+                  </a>
+                  <a
+                    class="pagination-next"
+                    :disabled="paginationNextDisabled"
+                    @click="handlePaginationNext"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-chevron-right"></i>
+                    </span>
+                  </a>
+                </nav>
+                <!-- <div class="buttons has-addons">
                   <button
                     class="button"
                     :disabled="steps.current === steps.initial"
@@ -72,7 +92,7 @@
                       <i class="fas fa-chevron-right"></i>
                     </span>
                   </button>
-                </div>
+                </div> -->
               </div>
               <div class="level-item" v-if="steps.current === 1">
                 <button

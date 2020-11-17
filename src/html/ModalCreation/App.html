@@ -13,6 +13,9 @@
       paginationNextDisabled: function () {
         return this.recordInvalid || this.steps.current === this.steps.final
       },
+      paginationPreviousDisabled: function () {
+        return this.steps.current === this.steps.initial
+      },
       ...Vuex.mapGetters('settings/properties', ['cblQueryKey']),
       ...Vuex.mapState('creation/modal', [
         'error',
@@ -69,10 +72,14 @@
         google.script.host.close()
       },
       handlePaginationNext: function () {
-        this.nextStep()
+        if (!this.paginationNextDisabled) {
+          this.nextStep()
+        }
       },
       handlePaginationPrevious: function () {
-        this.previousStep()
+        if (!this.paginationPreviousDisabled) {
+          this.previousStep()
+        }
       },
       showError: function (error) {
         this.updateLoading(false)
