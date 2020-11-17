@@ -27,8 +27,8 @@ function findBookByRow(row: number): BookModel.Book {
   return book
 }
 
-function findCover(book: BookModel.Book): string | null {
-  return CoverService.findCover(book)
+function findCover(book: BookModel.Book, forceAmazon?: boolean): string | null {
+  return CoverService.findCover(book, forceAmazon)
 }
 
 function findAdditionalData(book: BookModel.Book): BookModel.IBookAdditionalData {
@@ -77,6 +77,13 @@ function updateEntryRow(row: number, data: string[], additional: BookModel.IBook
     
   const range = sheet.getRange(row, 2, 1, 9)
   range.setValues([data])
+  
+  const [currency, value] = data[6].split(' ')
+  const priceCell = sheet.getRange(row, 8)
+  const format = Utils.getNumberFormatForCurrency(currency)
+  
+  priceCell.setNumberFormat(format)
+  priceCell.setValue(parseFloat(value.replace(',', '.')))
     
   sheet.setActiveRange(range)
 }

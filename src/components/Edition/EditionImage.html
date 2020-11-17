@@ -19,13 +19,26 @@
           <button
             type="button"
             class="button"
+            :disabled="coverIsFetching || hasCover"
             @click="handleFetchClick"
-            :class="{ 'is-loading': coverIsFetching }"
           >
             <span class="icon">
               <i class="fas fa-search"></i>
             </span>
             <span>Obter</span>
+          </button>
+        </div>
+        <div class="control" v-if="showAmazonButton">
+          <button
+            type="button"
+            class="button"
+            :disabled="coverIsFetching || hasCover"
+            @click="handleAmazonClick"
+          >
+            <span class="icon">
+              <i class="fab fa-amazon"></i>
+            </span>
+            <span>Amazon</span>
           </button>
         </div>
       </div>
@@ -41,17 +54,27 @@
     template: '#edition-image-template',
     name: 'EditionImage',
     computed: {
-      ...Vuex.mapGetters('book', ['bookCoverUrl']),
+      showAmazonButton: function () {
+        return this.useAmazonFallback && this.isbnType.includes('ISBN')
+      },
+      ...Vuex.mapState('book', ['isbnType']),
+      ...Vuex.mapGetters('book', ['bookCoverUrl', 'hasCover']),
       ...Vuex.mapGetters('edition/cover', [
         'coverError',
         'coverHasError',
         'coverIsFetching'
-      ])
+      ]),
+      ...Vuex.mapGetters('settings/properties', ['useAmazonFallback'])
     },
     methods: {
+      handleAmazonClick: function () {
+        if (!this.coverIsFetching) {
+          this.fetchCover({ module: 'edition', forceAmazon: true })
+        }
+      },
       handleFetchClick: function () {
         if (!this.coverIsFetching) {
-          this.fetchCover('edition')
+          this.fetchCover({ module: 'edition' })
         }
       },
       updateCoverUrl: function (e) {

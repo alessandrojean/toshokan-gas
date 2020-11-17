@@ -12,6 +12,12 @@
       'EditionDebugger': EditionDebugger
     },
     computed: {
+      deleteDisabled: function () {
+        return this.coverIsFetching
+      },
+      submitDisabled: function () {
+        return this.validation.record.invalid || this.coverIsFetching
+      },
       ...Vuex.mapState('edition/modal', [
         'activeTab',
         'error', 
@@ -20,6 +26,7 @@
         'validation'
       ]),
       ...Vuex.mapGetters('edition/modal', ['hasError']),
+      ...Vuex.mapGetters('edition/cover', ['coverIsFetching']),
       ...Vuex.mapState('book', {
         bookRow: 'row',
         bookId: 'id'
@@ -87,7 +94,7 @@
       ])
     },
     mounted: function () {
-      this.fetchCover('edition')
+      this.fetchCover({ module: 'edition' })
     }
   })
 </script>

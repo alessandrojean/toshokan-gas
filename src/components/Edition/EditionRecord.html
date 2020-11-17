@@ -267,18 +267,22 @@
 
   const decimalComma = (digits) => helpers.regex(
     'decimalComma', 
-    new RegExp(`^\\d+\\,\\d{${digits}}$`)
+    new RegExp(`^\\d+(\\,\\d{${digits}})?$`)
   )
 
   const EditionRecord = {
     template: '#edition-record-template',
     name: 'EditionRecord',
-    data: function () {
-      return {
-        currencies: ['R$', 'US$', '€', '¥']
-      }
-    },
     computed: {
+      currencies: function () {
+        const currencies = this.currenciesArray.map(getCurrencySymbol)
+        
+        if (!currencies.includes(this.priceCurrency)) {
+          currencies.push(this.priceCurrency)
+        }
+
+        return currencies
+      },
       priceCurrency: {
         get: function () {
           return this.$store.state.book.price.currency
@@ -306,7 +310,8 @@
         'date8601',
         'row'
       ]),
-      ...Vuex.mapState('book/datalist', ['imprints', 'stores'])
+      ...Vuex.mapState('book/datalist', ['imprints', 'stores']),
+      ...Vuex.mapGetters('settings/properties', ['currenciesArray'])
     },
     methods: {
       updateTitle: function (e) {

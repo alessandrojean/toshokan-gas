@@ -10,11 +10,12 @@ namespace Utils {
 
   export function convertIsbn13ToIsbn10(isbn13: string): string {
     const equalPart = isbn13.slice(3, -1)
-    const lastDigit = equalPart.split('')
+    const sum = equalPart.split('')
       .map((d, i) => parseInt(d) * (i + 1))
       .reduce((acm, crr) => acm + crr, 0)
+    const lastDigit = sum % 11
       
-    return equalPart + (lastDigit % 11)
+    return equalPart + (lastDigit === 10 ? 'X' : lastDigit)
   }
 
   export function getAppProperties() {
@@ -22,6 +23,12 @@ namespace Utils {
       script: PropertiesService.getScriptProperties().getProperties(),
       user: PropertiesService.getUserProperties().getProperties()
     }
+  }
+
+  export function getNumberFormatForCurrency(currency: string): string {
+    const dontHaveDecimal = ['¥']
+
+    return currency + ' ##0' + (dontHaveDecimal.includes(currency) ? '' : '.00')
   }
 
   export interface IPagination {

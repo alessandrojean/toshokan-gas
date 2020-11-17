@@ -89,22 +89,31 @@
       ...Vuex.mapState('book', { bookCoverUrl: 'coverUrl' })
     },
     methods: {
+      amazonCoverIsInvalid: function (image) {
+        return this.coverLoadingUrl.includes('images-amazon')
+          && this.coverLoadingUrl.includes('images/P/')
+          && image.naturalWidth === 1
+          && image.naturalHeight === 1
+      },
       handleImageError: function (error) {
         this.imageUrl = this.coverPlaceholder
         this.updateCoverLoadingUrl('')
         this.updateCoverError('Imagem não encontrada.')
         this.updateCoverLoading(false)
         this.updateCoverResolution('')
-        // this.$emit('image-error', 'Imagem não encontrada.')
       },
       handleImageLoaded: function (image) {
+        if (this.amazonCoverIsInvalid(image)) {
+          this.handleImageError()
+          this.updateCoverUrl('')
+          return
+        }
+
         this.imageUrl = this.coverLoadingUrl
         this.updateCoverUrl(this.imageUrl)
         this.updateCoverError('')
         this.updateCoverLoading(false)
         this.updateCoverResolution(image.naturalWidth + 'x' + image.naturalHeight)
-        // this.$emit('image-load')
-        // this.imageResolution = image.naturalWidth + 'x' + image.naturalHeight
       },
       loadImage: function () {
         this.updateCoverLoading(true)

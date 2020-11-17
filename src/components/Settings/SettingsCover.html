@@ -1,0 +1,58 @@
+<script type="text/x-template" id="settings-cover-template">
+  <section
+    class="section"
+    :class="{ 'is-hidden': !active }"
+    data-settings-group
+  >
+    <h1 class="title is-4">Capas</h1>
+    
+    <!-- Amazon fallback -->
+    <div class="level is-setting">
+      <div class="level-left">
+        <div class="level-item is-flex-direction-column is-align-items-flex-start">
+          <p class="label mb-0">Obter capas da Amazon</p>
+          <p class="is-size-7 has-text-grey">
+            Se habilitado, utiliza o sistema da Amazon de reserva
+            quando o site da editora não é suportado.
+          </p>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <div class="field">
+            <input
+              type="checkbox"
+              name="USE_AMAZON_FALLBACK"
+              id="USE_AMAZON_FALLBACK"
+              class="switch is-rounded is-link"
+              value="true"
+              v-model="useAmazonFallback"
+            >
+            <label for="USE_AMAZON_FALLBACK"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</script>
+
+<script id="settings-cover-script">
+  const SettingsCover = {
+    template: '#settings-cover-template',
+    name: 'SettingsCover',
+    props: {
+      active: Boolean
+    },
+    computed: {
+      useAmazonFallback: {
+        get: function () {
+          return this.$store.getters['settings/properties/useAmazonFallback']
+        },
+        set: function (value) {
+          const use = value.toString()
+          this.$store.commit('settings/properties/updateUseAmazonFallback', { use })
+        }
+      }
+    }
+  }
+</script>

@@ -5,16 +5,37 @@
     data-settings-group
   >
     <h1 class="title is-4">Comportamento</h1>
-    <!-- <h2 class="label">Opções de desenvolvedor</h2> -->
-    <!-- <label class="checkbox">
-      <input
-        type="checkbox"
-        name="USER_SHOW_DEBUG_TOOLS"
-        value="true"
-        v-model="showDebugTools"
+    
+    <!-- Currencies -->
+    <div class="field is-setting">
+      <label class="label">Moedas</label>
+      <div class="control">
+        <input
+          class="input"
+          type="text" 
+          name="USER_CURRENCIES"
+          placeholder="ex. BRL; USD; EUR; JPY"
+          v-model="currencies"
+        >
+      </div>
+      <p class="help">
+        As moedas que são mostradas como opções para o preço,
+        separadas por ponto-e-vírgula.
+      </p>
+      <a 
+        :href="currenciesHelpUrl"
+        rel="nofollow"
+        target="_blank"
+        class="button is-small is-white mt-2 has-text-grey is-help-button"
       >
-      Mostrar as ferramentas de <em>debug</em>.
-    </label> -->
+        <span class="icon">
+          <i class="far fa-question-circle"></i>
+        </span>
+        <span>Saiba mais sobre o ISO 4217.</span>
+      </a>
+    </div>
+
+    <!-- Developer mode -->
     <div class="level is-setting">
       <div class="level-left">
         <div class="level-item is-flex-direction-column is-align-items-flex-start">
@@ -31,7 +52,7 @@
               type="checkbox"
               name="USER_SHOW_DEBUG_TOOLS"
               id="USER_SHOW_DEBUG_TOOLS"
-              class="switch is-rounded is-info"
+              class="switch is-rounded is-link"
               value="true"
               v-model="showDebugTools"
             >
@@ -50,7 +71,20 @@
     props: {
       active: Boolean
     },
+    data: function () {
+      return {
+        currenciesHelpUrl: 'https://en.wikipedia.org/wiki/ISO_4217#Active_codes'
+      }
+    },
     computed: {
+      currencies: {
+        get: function () {
+          return this.$store.getters['settings/properties/currencies']
+        },
+        set: function (currencies) {
+          this.$store.commit('settings/properties/updateCurrencies', { currencies })
+        }
+      },
       showDebugTools: {
         get: function () {
           return this.$store.state.settings.properties.user.SHOW_DEBUG_TOOLS === 'true'

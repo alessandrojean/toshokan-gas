@@ -1,0 +1,26 @@
+<script id="currency-symbol-filter">
+  const currencyMap = {
+    'BRL': 'R$',
+    'USD': 'US$',
+    'EUR': '€',
+    'JPY': '¥'
+  }
+
+  // https://stackoverflow.com/a/53749034/8592836
+  function getCurrencySymbol (currency, locale) {
+    if (currencyMap[currency]) {
+      return currencyMap[currency]
+    }
+
+    const numberFormat = new Intl.NumberFormat(locale || 'pt-BR', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    })
+
+    return numberFormat.format(0)
+      .replace(/\d/g, '')
+      .trim()
+  }
+</script>

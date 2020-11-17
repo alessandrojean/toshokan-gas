@@ -27,6 +27,9 @@
             <settings-cbl
               :active="menuItemActive === 'cbl'">
             </settings-cbl>
+            <settings-cover
+              :active="menuItemActive === 'cover'">
+            </settings-cover>
             <settings-about
               :active="menuItemActive === 'about'">
             </settings-about>
@@ -98,6 +101,7 @@
     <?!= includeComponent('Settings/SettingsAsideMenu'); ?>
     <?!= includeComponent('Settings/SettingsBehavior'); ?>
     <?!= includeComponent('Settings/SettingsCbl'); ?>
+    <?!= includeComponent('Settings/SettingsCover'); ?>
     <?!= includeComponent('Settings/SettingsAbout'); ?>
     <!-- App -->
     <?!= include('src/html/ModalSettings/App'); ?>

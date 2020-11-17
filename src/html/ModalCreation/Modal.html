@@ -73,26 +73,6 @@
                     </span>
                   </a>
                 </nav>
-                <!-- <div class="buttons has-addons">
-                  <button
-                    class="button"
-                    :disabled="steps.current === steps.initial"
-                    @click="handlePaginationPrevious"
-                  >
-                    <span class="icon is-small">
-                      <i class="fas fa-chevron-left"></i>
-                    </span>
-                  </button>
-                  <button
-                    class="button"
-                    :disabled="paginationNextDisabled"
-                    @click="handlePaginationNext"
-                  >
-                    <span class="icon is-small">
-                      <i class="fas fa-chevron-right"></i>
-                    </span>
-                  </button>
-                </div> -->
               </div>
               <div class="level-item" v-if="steps.current === 1">
                 <button
@@ -146,6 +126,8 @@
     
     <!-- Dependencies -->
     <?!= includeJsDependencies(); ?>
+    <!-- Filters -->
+    <?!= include('src/filters/CurrencySymbol'); ?>
     <!-- Properties -->
     <?!= includeJson('properties', properties); ?>
     <!-- Datalists -->

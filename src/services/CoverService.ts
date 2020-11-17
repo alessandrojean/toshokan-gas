@@ -15,12 +15,18 @@ namespace CoverService {
     url: string
     property: string
     propertyTransformer?: (value: any) => any
+    condition?: (book: BookModel.Book) => boolean
+    conditionMessage?: string
 
     constructor(properties: IDirectUrlHandlerProperties) {
       Object.assign(this, properties)
     }
 
     run(book: BookModel.Book): string {
+      if (this.condition && !this.condition(book)) {
+        throw this.conditionMessage || COVER_NOT_FOUND
+      }
+
       let valueToReplace = book[this.property]
       
       if (this.propertyTransformer) {
@@ -35,6 +41,8 @@ namespace CoverService {
     url: string
     property: string
     propertyTransformer?: (value: any) => any
+    condition?: (book: BookModel.Book) => boolean
+    conditionMessage?: string
   }
 
   class WordpressHandler implements ICoverHandler {
@@ -197,7 +205,7 @@ namespace CoverService {
             } else {
               results.push({
                 title,
-                imageUrl:this.getBetterImage(thumbUrl)
+                imageUrl: this.getBetterImage(thumbUrl)
               })
             }
           }
@@ -306,13 +314,44 @@ namespace CoverService {
     })
   }
 
-  export function findCover(book: BookModel.Book): string {
-    const siteHandler = AVAILABLE_SITES[book.imprint]
+  const AmazonFallback = new DirectUrlHandler({
+    url: 'https://images-na.ssl-images-amazon.com/images/P/{value}.01._SCRM_SL700_.jpg',
+    property: BookModel.Properties.ISBN,
+    propertyTransformer: isbn => {
+      if (isbn.length === 10) {
+        return isbn
+      }
 
-    if (!siteHandler) {
-      throw SITE_NOT_SUPPORTED
+      return Utils.convertIsbn13ToIsbn10(isbn.replace(/-/g, ''))
+    },
+    condition: book => book.isbnType.includes('ISBN')
+  })
+
+  export function findCover(
+    book: BookModel.Book,
+    forceAmazon?: boolean
+  ): string {
+    if (forceAmazon) {
+      return AmazonFallback.run(book)
     }
 
-    return siteHandler.run(book)
+    const appProperties = Utils.getAppProperties()
+    const useAmazon = appProperties.user.USE_AMAZON_FALLBACK === 'true'
+
+    const siteHandler = AVAILABLE_SITES[book.imprint]
+
+    if (!siteHandler && useAmazon) {
+      return AmazonFallback.run(book)
+    }
+
+    try {
+      return siteHandler.run(book)
+    } catch (exception) {
+      if (useAmazon) {
+        return AmazonFallback.run(book)
+      }
+
+      throw exception
+    }
   }
 }

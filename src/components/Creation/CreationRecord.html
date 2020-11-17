@@ -278,7 +278,7 @@
 
   const decimalComma = (digits) => helpers.regex(
     'decimalComma', 
-    new RegExp(`^\\d+\\,\\d{${digits}}$`)
+    new RegExp(`^\\d+(\\,\\d{${digits}})?$`)
   )
 
   const CreationRecord = {
@@ -286,11 +286,13 @@
     name: 'CreationRecord',
     data: function () {
       return {
-        currencies: ['R$', 'US$', '€', '¥'],
         isbnReadOnly: false
       }
     },
     computed: {
+      currencies: function () {
+        return this.currenciesArray.map(getCurrencySymbol)
+      },
       priceCurrency: {
         get: function () {
           return this.$store.state.book.price.currency
@@ -317,7 +319,8 @@
         'store',
         'date8601'
       ]),
-      ...Vuex.mapState('book/datalist', ['imprints', 'stores'])
+      ...Vuex.mapState('book/datalist', ['imprints', 'stores']),
+      ...Vuex.mapGetters('settings/properties', ['currenciesArray'])
     },
     methods: {
       updateIsbn: function (e) {

@@ -49,6 +49,19 @@
       }
 
       return isbn.replace.apply(isbn, replacements[isbn.length])
+    },
+    getIsbnType: function (isbn) {
+      const withoutDashes = isbn.replace(/-/g, '')
+
+      if (withoutDashes.match(/^[0-9]{9}[0-9xX]$/)) {
+        return 'ISBN-10'
+      } else if (isbn.match(/^[0-9]{13}$/)) {
+        return 'ISBN-13'
+      } else if (isbn.match(/^789[0-9]{10}/)) {
+        return 'EAN-13'
+      } else {
+        return 'OUTRO'
+      }
     }
   }
 
@@ -126,6 +139,9 @@
       updateIsbn: function (state, isbn) {
         state.isbn = isbn
       },
+      updateIsbnType: function (state, isbnType) {
+        state.isbnType = isbnType
+      },
       updateTitle: function (state, title) {
         state.title = title
         state.titleParts = title.split(/\s+#(\d+)(?:\:\s+)?/)
@@ -165,12 +181,13 @@
       }
     },
     actions: {
-      fetchCover: function ({ state, commit }, module) {
+      fetchCover: function ({ state, commit }, { module, forceAmazon }) {
         if (state.coverUrl && state.coverUrl.length) {
           return
         }
 
         commit(`${module}/cover/updateCoverFetching`, true, { root: true })
+        commit(`${module}/cover/updateCoverError`, '', { root: true })
 
         google.script.run
           .withSuccessHandler(coverUrl => {
@@ -183,7 +200,7 @@
             commit(`${module}/cover/updateCoverFetching`, false, { root: true })
             commit(`${module}/cover/updateCoverError`, error.message || error, { root: true })
           })
-          .findCover(state)
+          .findCover({ ...state, datalist: undefined }, forceAmazon)
       },
       fetchNextBook: function ({ state, dispatch }) {
         dispatch('fetchBook', { row: state.row + 1, module: 'edition' })
@@ -200,7 +217,7 @@
             commit('edition/modal/updateUpdatedAt', '', { root: true })
             commit(`${module}/cover/updateCoverError`, '', { root: true })
             commit('updateBook', book)
-            dispatch('fetchCover', module)
+            dispatch('fetchCover', { module })
           })
           .withFailureHandler(error => {
             commit('edition/modal/updateLoading', false, { root: true })
@@ -234,6 +251,7 @@
       },
       changeIsbn: function ({ state, commit }, isbn) {
         commit('updateIsbn', Utils.formatIsbn(isbn))
+        commit('updateIsbnType', Utils.getIsbnType(isbn))
         commit('generateId')
       },
       changeTitle: function ({ state, commit }, title) {
@@ -519,16 +537,37 @@
           cblQueryKeyIsEmpty: function (state) {
             return state.user.CBL_QUERY_KEY.length === 0
           },
+          currencies: function (state) {
+            const currencies = state.user.CURRENCIES
+            
+            if (currencies && currencies.length) {
+              return currencies
+            }
+
+            return ['BRL', 'USD', 'EUR', 'JPY'].join('; ')
+          },
+          currenciesArray: function (state, getters) {
+            return getters.currencies.split(/;\s*/)
+          },
           showDebugTools: function (state) {
             return state.user.SHOW_DEBUG_TOOLS === 'true'
+          },
+          useAmazonFallback: function (state) {
+            return state.user.USE_AMAZON_FALLBACK === 'true'
           }
         },
         mutations: {
           updateCblQueryKey: function (state, payload) {
             state.user = { ...state.user, CBL_QUERY_KEY: payload.key }
           },
+          updateCurrencies: function (state, payload) {
+            state.user = { ...state.user, CURRENCIES: payload.currencies }
+          },
           updateShowDebugTools: function (state, payload) {
             state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.show }
+          },
+          updateUseAmazonFallback: function (state, payload) {
+            state.user = { ...state.user, USE_AMAZON_FALLBACK: payload.use }
           }
         }
       },

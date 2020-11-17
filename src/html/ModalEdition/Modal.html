@@ -55,6 +55,7 @@
               <button
                 type="button" 
                 class="button is-danger" 
+                :disabled="deleteDisabled"
                 @click="handleDeleteClick">
                 <span class="icon">
                   <i class="fas fa-trash"></i>
@@ -84,7 +85,7 @@
                 type="submit"
                 class="button is-link"
                 id="submit-button"
-                :disabled="validation.record.invalid"
+                :disabled="submitDisabled"
               >
                 <span class="icon">
                   <i class="fas fa-save"></i>
@@ -103,6 +104,8 @@
     
     <!-- Dependencies -->
     <?!= includeJsDependencies(); ?>
+    <!-- Filters -->
+    <?!= include('src/filters/CurrencySymbol'); ?>
     <!-- Properties -->
     <?!= includeJson('properties', properties); ?>
     <!-- Book -->
