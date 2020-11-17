@@ -1,5 +1,5 @@
 namespace UpdaterService {
-  const VERSION = '0.1.1'
+  const VERSION = '0.1.2'
   const ENVIRONMENT = 'development'
 
   export function getAppInfo() {

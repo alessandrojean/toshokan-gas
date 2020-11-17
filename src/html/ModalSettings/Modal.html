@@ -17,10 +17,10 @@
         @submit.prevent="handleFormSubmit"
       >
         <div class="columns" v-if="!errorMessage.length">
-          <div class="column pb-0 is-one-quarter">
+          <div class="column pb-0 is-one-quarter is-unselectable">
             <settings-aside-menu :items="menuItems"></settings-aside-menu>
           </div>
-          <div class="column pb-0 tab-content-wrapper">
+          <div class="column pb-0 tab-content-wrapper is-unselectable">
             <settings-behavior
               :active="menuItemActive === 'behavior'">
             </settings-behavior>
