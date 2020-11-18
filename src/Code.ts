@@ -22,14 +22,12 @@ function onOpen() {
 
 function include(fileName: string): string {
   return HtmlService
-    .createHtmlOutputFromFile(fileName)
+    .createHtmlOutputFromFile('src/frontend/' + fileName)
     .getContent()
 }
 
 function includeComponent(component: string): string {
-  return HtmlService
-    .createHtmlOutputFromFile(`src/components/${component}`)
-    .getContent()
+  return include('components/' + component)
 }
 
 function includeJson(name: string, content: any): string {

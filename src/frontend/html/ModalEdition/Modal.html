@@ -7,7 +7,7 @@
     <!-- CSS Dependencies -->
     <?!= includeCssDependencies(); ?>
     <!-- Custom Stylesheet -->
-    <?!= include('src/html/ModalEdition/Stylesheet'); ?>
+    <?!= include('html/ModalEdition/Stylesheet'); ?>
   </head>
   <body>
     <div id="app">
@@ -105,7 +105,7 @@
     <!-- Dependencies -->
     <?!= includeJsDependencies(); ?>
     <!-- Filters -->
-    <?!= include('src/filters/CurrencySymbol'); ?>
+    <?!= include('filters/CurrencySymbol'); ?>
     <!-- Properties -->
     <?!= includeJson('properties', properties); ?>
     <!-- Book -->
@@ -113,7 +113,7 @@
     <!-- Datalists -->
     <?!= includeJson('datalists', entityUniqueProperties); ?>
     <!-- Store -->
-    <?!= include('src/store/Store'); ?>
+    <?!= include('store/Store'); ?>
     <!-- Components -->
     <?!= includeComponent('Edition/EditionHeader'); ?>
     <?!= includeComponent('Edition/EditionPanel'); ?>
@@ -121,6 +121,6 @@
     <?!= includeComponent('Edition/EditionImage'); ?>
     <?!= includeComponent('Edition/EditionDebugger'); ?>
     <!-- App -->
-    <?!= include('src/html/ModalEdition/App'); ?>
+    <?!= include('html/ModalEdition/App'); ?>
   </body>
 </html>

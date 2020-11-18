@@ -2,7 +2,8 @@ function displayEditionModal() {
   const sheet = SpreadsheetApp.getActiveSheet()
   const row = sheet.getActiveCell().getRow()
   
-  const htmlTemplate = HtmlService.createTemplateFromFile('src/html/ModalEdition/Modal')
+  const file = 'src/frontend/html/ModalEdition/Modal'
+  const htmlTemplate = HtmlService.createTemplateFromFile(file)
   htmlTemplate.book = findBookByRow(row)
   htmlTemplate.properties = Utils.getAppProperties()
   htmlTemplate.entityUniqueProperties = DatabaseService.getEntityUniqueProperties()
