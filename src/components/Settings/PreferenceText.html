@@ -1,0 +1,90 @@
+<script type="text/x-template" id="preference-text-template">
+  <div class="field is-setting">
+    <label class="label">{{ name }}</label>
+    <div class="control" :class="{ 'has-icons-right': isEmpty }">
+      <input
+        class="input"
+        type="text" 
+        :name="preferenceKey"
+        :placeholder="placeholder"
+        v-model="preference"
+        :class="{ 'is-danger': isEmpty }"
+      >
+      <span class="icon is-small is-right" v-if="isEmpty">
+        <i class="fas fa-exclamation-circle"></i>
+      </span>
+    </div>
+    <p class="help">
+      {{ description }}
+    </p>
+    <a 
+      v-if="helpUrl.length > 0"
+      rel="nofollow"
+      target="_blank"
+      class="button is-small is-white mt-2 has-text-grey is-help-button"
+      :href="helpUrl"
+    >
+      <span class="icon">
+        <i class="far fa-question-circle"></i>
+      </span>
+      <span>{{ helpText }}</span>
+    </a>
+  </div>
+</script>
+
+<script id="preference-text-script">
+  const PreferenceText = {
+    template: '#preference-text-template',
+    name: 'PreferenceText',
+    props: {
+      alertIfEmpty: {
+        type: Boolean,
+        default: false
+      },
+      description: {
+        required: true,
+        type: String
+      },
+      helpText: {
+        type: String,
+        default: 'Saiba mais.'
+      },
+      helpUrl: {
+        type: String,
+        default: ''
+      },
+      name: {
+        required: true,
+        type: String
+      },
+      placeholder: {
+        required: true,
+        type: String
+      },
+      preferenceKey: {
+        required: true,
+        type: String
+      },
+      updater: {
+        required: true,
+        type: String
+      }
+    },
+    computed: {
+      isEmpty: function () {
+        return this.alertIfEmpty && this.preference.length === 0
+      },
+      preference: {
+        get: function () {
+          const userProperties = this.$store.state.settings.properties.user
+          return userProperties[this.preferenceKey] || ''
+        },
+        set: function (value) {
+          this.$store.commit(`settings/properties/${this.updater}`, {
+            value
+          })
+        }
+      }
+    }
+  }
+</script>

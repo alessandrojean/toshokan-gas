@@ -531,6 +531,9 @@
           ...JSON.parse(propertiesJson.textContent)
         },
         getters: {
+          amazonImageSize: function (state) {
+            return state.user.AMAZON_IMAGE_SIZE || '700'
+          },
           cblQueryKey: function (state) {
             return state.user.CBL_QUERY_KEY || ''
           },
@@ -557,17 +560,20 @@
           }
         },
         mutations: {
+          updateAmazonImageSize: function (state, payload) {
+            state.user = { ...state.user, AMAZON_IMAGE_SIZE: payload.value }
+          },
           updateCblQueryKey: function (state, payload) {
-            state.user = { ...state.user, CBL_QUERY_KEY: payload.key }
+            state.user = { ...state.user, CBL_QUERY_KEY: payload.value }
           },
           updateCurrencies: function (state, payload) {
-            state.user = { ...state.user, CURRENCIES: payload.currencies }
+            state.user = { ...state.user, CURRENCIES: payload.value }
           },
           updateShowDebugTools: function (state, payload) {
-            state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.show }
+            state.user = { ...state.user, SHOW_DEBUG_TOOLS: payload.value }
           },
           updateUseAmazonFallback: function (state, payload) {
-            state.user = { ...state.user, USE_AMAZON_FALLBACK: payload.use }
+            state.user = { ...state.user, USE_AMAZON_FALLBACK: payload.value }
           }
         }
       },

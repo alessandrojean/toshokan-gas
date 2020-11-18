@@ -1,0 +1,63 @@
+<script type="text/x-template" id="preference-switch-template">
+  <div class="level is-setting">
+    <div class="level-left">
+      <div class="level-item is-flex-direction-column is-align-items-flex-start">
+        <p class="label mb-0">{{ name }}</p>
+        <p class="is-size-7 has-text-grey">{{ description }}</p>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <div class="field">
+          <input
+            type="checkbox"
+            class="switch is-rounded is-link"
+            value="true"
+            :name="preferenceKey"
+            :id="preferenceKey"
+            v-model="preference"
+          >
+          <label :for="preferenceKey"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="preference-switch-script">
+  const PreferenceSwitch = {
+    template: '#preference-switch-template',
+    name: 'PreferenceSwitch',
+    props: {
+      name: {
+        required: true,
+        type: String
+      },
+      description: {
+        required: true,
+        type: String
+      },
+      preferenceKey: {
+        required: true,
+        type: String
+      },
+      updater: {
+        required: true,
+        type: String
+      }
+    },
+    computed: {
+      preference: {
+        get: function () {
+          const userProperties = this.$store.state.settings.properties.user
+          return userProperties[this.preferenceKey] === 'true'
+        },
+        set: function (value) {
+          this.$store.commit(`settings/properties/${this.updater}`, { 
+            value: value.toString()
+          })
+        }
+      }
+    }
+  }
+</script>

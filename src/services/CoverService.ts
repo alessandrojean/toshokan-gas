@@ -37,6 +37,48 @@ namespace CoverService {
     }
   }
 
+  /**
+   * const AmazonFallback = new DirectUrlHandler({
+    url: 'https://images-na.ssl-images-amazon.com/images/P/{value}.01._SCRM_SL700_.jpg',
+    property: BookModel.Properties.ISBN,
+    propertyTransformer: isbn => {
+      if (isbn.length === 10) {
+        return isbn
+      }
+
+      return Utils.convertIsbn13ToIsbn10(isbn.replace(/-/g, ''))
+    },
+    condition: book => book.isbnType.includes('ISBN')
+  })
+   */
+
+  class AmazonHandler extends DirectUrlHandler {
+    constructor () {
+      super({
+        url: 'https://images-na.ssl-images-amazon.com/images/P/{value}.01._SCRM_SL{size}_.jpg',
+        property: BookModel.Properties.ISBN,
+        propertyTransformer: isbn => {
+          if (isbn.length === 10) {
+            return isbn
+          }
+    
+          return Utils.convertIsbn13ToIsbn10(isbn.replace(/-/g, ''))
+        },
+        condition: book => book.isbnType.includes('ISBN')
+      })
+    }
+
+    private getImageSize(): string {
+      const userProperties = Utils.getAppProperties().user
+      return userProperties.AMAZON_IMAGE_SIZE || '700'
+    }
+
+    run(book: BookModel.Book): string {
+      const imageUrl = super.run(book)
+      return imageUrl.replace(/\{size\}/, this.getImageSize())
+    }
+  }
+
   interface IDirectUrlHandlerProperties {
     url: string
     property: string
@@ -314,25 +356,14 @@ namespace CoverService {
     })
   }
 
-  const AmazonFallback = new DirectUrlHandler({
-    url: 'https://images-na.ssl-images-amazon.com/images/P/{value}.01._SCRM_SL700_.jpg',
-    property: BookModel.Properties.ISBN,
-    propertyTransformer: isbn => {
-      if (isbn.length === 10) {
-        return isbn
-      }
-
-      return Utils.convertIsbn13ToIsbn10(isbn.replace(/-/g, ''))
-    },
-    condition: book => book.isbnType.includes('ISBN')
-  })
-
   export function findCover(
     book: BookModel.Book,
     forceAmazon?: boolean
   ): string {
+    const amazonFallback = new AmazonHandler()
+
     if (forceAmazon) {
-      return AmazonFallback.run(book)
+      return amazonFallback.run(book)
     }
 
     const appProperties = Utils.getAppProperties()
@@ -341,14 +372,14 @@ namespace CoverService {
     const siteHandler = AVAILABLE_SITES[book.imprint]
 
     if (!siteHandler && useAmazon) {
-      return AmazonFallback.run(book)
+      return amazonFallback.run(book)
     }
 
     try {
       return siteHandler.run(book)
     } catch (exception) {
       if (useAmazon) {
-        return AmazonFallback.run(book)
+        return amazonFallback.run(book)
       }
 
       throw exception

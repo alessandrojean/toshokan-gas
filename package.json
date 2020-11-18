@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "push": "clasp push"
+    "push": "clasp push",
+    "watch": "clasp push --watch"
   },
   "dependencies": {
     "@types/google-apps-script": "^1.0.14"

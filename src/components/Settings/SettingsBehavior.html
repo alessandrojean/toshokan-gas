@@ -7,60 +7,23 @@
     <h1 class="title is-4">Comportamento</h1>
     
     <!-- Currencies -->
-    <div class="field is-setting">
-      <label class="label">Moedas</label>
-      <div class="control">
-        <input
-          class="input"
-          type="text" 
-          name="USER_CURRENCIES"
-          placeholder="ex. BRL; USD; EUR; JPY"
-          v-model="currencies"
-        >
-      </div>
-      <p class="help">
-        As moedas que são mostradas como opções para o preço,
-        separadas por ponto-e-vírgula.
-      </p>
-      <a 
-        :href="currenciesHelpUrl"
-        rel="nofollow"
-        target="_blank"
-        class="button is-small is-white mt-2 has-text-grey is-help-button"
-      >
-        <span class="icon">
-          <i class="far fa-question-circle"></i>
-        </span>
-        <span>Saiba mais sobre o ISO 4217.</span>
-      </a>
-    </div>
+    <preference-text
+      name="Moedas"
+      description="As moedas que são mostradas como opções para o preço, separadas por ponto-e-vírgula."
+      placeholder="ex. BRL; USD; EUR; JPY"
+      preference-key="CURRENCIES"
+      updater="updateCurrencies"
+      help-url="https://en.wikipedia.org/wiki/ISO_4217#Active_codes"
+      help-text="Saiba mais sobre o ISO 4217.">
+    </preference-text>
 
     <!-- Developer mode -->
-    <div class="level is-setting">
-      <div class="level-left">
-        <div class="level-item is-flex-direction-column is-align-items-flex-start">
-          <p class="label mb-0">Modo de desenvolvedor</p>
-          <p class="is-size-7 has-text-grey">
-            Habilita a exibição de ferramentas para o desenvolvimento.
-          </p>
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <div class="field">
-            <input
-              type="checkbox"
-              name="USER_SHOW_DEBUG_TOOLS"
-              id="USER_SHOW_DEBUG_TOOLS"
-              class="switch is-rounded is-link"
-              value="true"
-              v-model="showDebugTools"
-            >
-            <label for="USER_SHOW_DEBUG_TOOLS"></label>
-          </div>
-        </div>
-      </div>
-    </div>
+    <preference-switch
+      name="Modo de desenvolvedor"
+      description="Habilita a exibição de ferramentas para o desenvolvimento"
+      preference-key="SHOW_DEBUG_TOOLS"
+      updater="updateShowDebugTools">
+    </preference-switch>
   </section>
 </script>
 
@@ -68,32 +31,12 @@
   const SettingsBehavior = {
     template: '#settings-behavior-template',
     name: 'SettingsBehavior',
+    components: {
+      PreferenceSwitch,
+      PreferenceText
+    },
     props: {
       active: Boolean
-    },
-    data: function () {
-      return {
-        currenciesHelpUrl: 'https://en.wikipedia.org/wiki/ISO_4217#Active_codes'
-      }
-    },
-    computed: {
-      currencies: {
-        get: function () {
-          return this.$store.getters['settings/properties/currencies']
-        },
-        set: function (currencies) {
-          this.$store.commit('settings/properties/updateCurrencies', { currencies })
-        }
-      },
-      showDebugTools: {
-        get: function () {
-          return this.$store.state.settings.properties.user.SHOW_DEBUG_TOOLS === 'true'
-        },
-        set: function (value) {
-          const show = value.toString()
-          this.$store.commit('settings/properties/updateShowDebugTools', { show })
-        }
-      }
     }
   }
 </script>

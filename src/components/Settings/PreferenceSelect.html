@@ -1,0 +1,80 @@
+<script type="text/x-template" id="preference-select-template">
+  <div class="level is-setting">
+    <div class="level-left">
+      <div class="level-item is-flex-direction-column is-align-items-flex-start">
+        <p class="label mb-0" :class="{ 'has-text-grey-light': disabled }">
+          {{ name }}
+        </p>
+        <p
+          class="is-size-7 has-text-grey"
+          :class="{ 'has-text-grey-lighter': disabled }"
+        >
+          {{ description }}
+        </p>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <div class="select">
+          <select
+            :name="preferenceKey"
+            v-model="preference"
+            :disabled="disabled"
+          >
+            <option v-for="option of selectValues" :key="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="preference-select-script">
+  const PreferenceSelect = {
+    template: '#preference-select-template',
+    name: 'PreferenceSelect',
+    props: {
+      name: {
+        required: true,
+        type: String
+      },
+      description: {
+        required: true,
+        type: String
+      },
+      preferenceKey: {
+        required: true,
+        type: String
+      },
+      updater: {
+        required: true,
+        type: String
+      },
+      defaultValue: {
+        required: true,
+        type: String
+      },
+      selectValues: {
+        required: true,
+        type: Array
+      },
+      disabled: {
+        type: Boolean,
+        default: false
+      }
+    },
+    computed: {
+      preference: {
+        get: function () {
+          const userProperties = this.$store.state.settings.properties.user
+          return userProperties[this.preferenceKey] || this.defaultValue
+        },
+        set: function (value) {
+          this.$store.commit(`settings/properties/${this.updater}`, { value })
+        }
+      }
+    }
+  }
+</script>

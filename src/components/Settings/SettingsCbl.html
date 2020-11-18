@@ -5,36 +5,18 @@
     data-settings-group
   >
     <h1 class="title is-4">CBL</h1>
-    <div class="field is-setting">
-      <label class="label">Chave de consulta</label>
-      <div class="control" :class="{ 'has-icons-right': cblQueryKeyIsEmpty }">
-        <input
-          class="input"
-          type="text" 
-          name="USER_CBL_QUERY_KEY"
-          placeholder="ex. AB20389372485D98E580C50AFCFAD453"
-          v-model="cblQueryKey"
-          :class="{ 'is-danger': cblQueryKeyIsEmpty }"
-        >
-        <span class="icon is-small is-right" v-if="cblQueryKeyIsEmpty">
-          <i class="fas fa-exclamation-circle"></i>
-        </span>
-      </div>
-      <p class="help">
-        A chave de consulta permite a obtenção de informações pelo ISBN.
-      </p>
-      <a 
-        :href="queryKeyHelpUrl"
-        rel="nofollow"
-        target="_blank"
-        class="button is-small is-white mt-2 has-text-grey is-help-button"
-      >
-        <span class="icon">
-          <i class="far fa-question-circle"></i>
-        </span>
-        <span>Aprenda como obter a chave de consulta.</span>
-      </a>
-    </div>
+
+    <!-- Query Key -->
+    <preference-text
+      name="Chave de consulta"
+      description="A chave de consulta permite a obtenção de informações pelo ISBN."
+      placeholder="ex. AB20389372485D98E580C50AFCFAD453"
+      preference-key="CBL_QUERY_KEY"
+      updater="updateCblQueryKey"
+      :help-url="queryKeyHelpUrl"
+      help-text="Aprenda como obter a chave de consulta."
+      :alert-if-empty="true">
+    </preference-text>
   </section>
 </script>
 
@@ -42,6 +24,9 @@
   const SettingsCbl = {
     template: '#settings-cbl-template',
     name: 'SettingsCbl',
+    components: {
+      PreferenceText
+    },
     props: {
       active: Boolean
     },
