@@ -415,7 +415,7 @@
               })
               .withFailureHandler(error => {
                 commit('updateLoading', false)
-                commit('updateError', error)
+                commit('updateError', error.message || error)
               })
               .searchForCreation(isbn.replace(/-/g, ''))
           }
