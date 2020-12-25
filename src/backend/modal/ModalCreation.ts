@@ -91,6 +91,13 @@ function createEntryRow(
   const range = sheet.getRange(rowBefore + 1, 2, 1, 9)
   range.setValues([data])
 
+  const [currency, value] = data[6].split(' ')
+  const priceCell = sheet.getRange(rowBefore + 1, 8)
+  const format = Utils.getNumberFormatForCurrency(currency)
+  
+  priceCell.setNumberFormat(format)
+  priceCell.setValue(parseFloat(value.replace(',', '.')))
+
   additional.id = findBookByRow(rowBefore + 1).getBookId()
   updateAdditionalRow(additional)
 

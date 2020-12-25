@@ -62,7 +62,8 @@
   section[data-settings-group] {
     padding-top: 0;
     padding-bottom: 1.5rem;
-    height: calc(100vh - 40px - 2em);
+    /* height: calc(100vh - 40px - 2em); */
+    overflow-y: auto;
   }
   
   #control-buttons {
@@ -147,11 +148,29 @@
     margin-bottom: 0 !important;
   }
 
+  .is-setting.has-table {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
   .is-setting + .is-setting {
     border-top: none;
   }
 
   .is-help-button {
     margin-left: -0.75em;
+  }
+
+  .table-heading {
+    padding: 0.5em 0;
+    font-size: 0.75rem;
+    border-top: hsl(0, 0%, 90%) 1px solid;
+    border-bottom: hsl(0, 0%, 90%) 1px solid;
+  }
+
+  .level.table-item {
+    padding: 0.25em 0;
+    margin-bottom: 0 !important;
+    border-bottom: hsl(0, 0%, 90%) 1px solid;
   }
 </style>

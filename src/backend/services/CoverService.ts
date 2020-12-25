@@ -371,14 +371,16 @@ namespace CoverService {
 
     const siteHandler = AVAILABLE_SITES[book.imprint]
 
-    if (!siteHandler && useAmazon) {
-      return amazonFallback.run(book)
+    if (!siteHandler && !useAmazon) {
+      throw SITE_NOT_SUPPORTED
     }
 
+    const coverFinder = siteHandler || amazonFallback
+    
     try {
-      return siteHandler.run(book)
+      return coverFinder.run(book)
     } catch (exception) {
-      if (useAmazon) {
+      if (useAmazon && coverFinder !== amazonFallback) {
         return amazonFallback.run(book)
       }
 

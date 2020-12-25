@@ -2,17 +2,23 @@
   <aside class="is-image-column">
     <div class="panel">
       <div class="panel-block" id="book-image">
-        <figure
-          class="image is-2by3"
-          :class="{ 'is-danger': coverHasError }"
-        >
+        <figure class="image is-2by3">
           <div
             class="loader-wrapper"
             :class="{ 'is-active': coverIsFetching || coverIsLoading }"
           >
             <div class="loader is-loading"></div>
           </div>
-          <img :src="imageUrl" ref="image">
+          <div class="cover-error-wrapper" v-if="coverHasError">
+            <span class="icon is-medium has-text-grey">
+              <i class="far fa-image fa-2x"></i>
+            </span>
+          </div>
+          <img
+            :src="imageUrl"
+            ref="image"
+            :class="{ 'is-hidden': coverHasError }"
+          >
           <span
             class="tag is-dark is-image-resolution"
             v-if="showCoverResolution"
