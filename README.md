@@ -1,6 +1,6 @@
 # Toshokan-gas
 
-**This project is not being mantained anymore, please use the
+**This project is not being maintained anymore, please use the
 [new version](https://github.com/alessandrojean/toshokan) instead.**
 
 Google Apps Script project to help the management of a comic book
